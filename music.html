@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rani Music — נגן מוזיקה</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --red:#E50914;--red-dark:#B20710;
+  --bg:#0b0b0b;--bg2:#111;--bg3:#181818;--bg4:#202020;
+  --text:#f0f0f0;--text2:#888;--text3:#444;
+  --green:#1db954;--green2:#1ed760;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --glass:rgba(255,255,255,0.03);--glass2:rgba(255,255,255,0.06);
+  --player-h:88px;--sidebar-w:240px;
+}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);color:var(--text);font-family:'Heebo',sans-serif;
+  display:grid;
+  grid-template-rows:1fr var(--player-h);
+  grid-template-columns:var(--sidebar-w) 1fr;
+  grid-template-areas:"sidebar main" "player player";
+}
+
+/* ====== SIDEBAR ====== */
+.sidebar{
+  grid-area:sidebar;
+  background:rgba(0,0,0,0.6);
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sidebar-logo{
+  padding:22px 20px 18px;
+  font-family:'Bebas Neue',cursive;font-size:1.9rem;color:var(--red);
+  letter-spacing:3px;text-shadow:0 0 22px rgba(229,9,20,0.5);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+  cursor:pointer;
+}
+.sidebar-logo span{color:#fff;font-size:1rem;display:block;font-family:'Heebo',sans-serif;letter-spacing:0;font-weight:400;color:#444;margin-top:-4px;}
+.sidebar-nav{padding:14px 0;flex-shrink:0;}
+.snav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 20px;cursor:pointer;
+  color:#777;font-size:0.85rem;font-weight:600;
+  transition:color 0.18s,background 0.18s;border-radius:0;
+  position:relative;
+}
+.snav-item:hover{color:#fff;background:var(--glass);}
+.snav-item.active{color:#fff;}
+.snav-item.active::before{
+  content:'';position:absolute;right:0;top:20%;bottom:20%;
+  width:3px;background:var(--red);border-radius:3px 0 0 3px;
+  box-shadow:0 0 10px var(--red);
+}
+.snav-icon{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0;}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 20px;}
+.sidebar-section-title{
+  padding:14px 20px 8px;
+  font-size:0.65rem;font-weight:700;letter-spacing:2px;
+  color:#333;text-transform:uppercase;flex-shrink:0;
+}
+.playlists-list{flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:10px;}
+.playlists-list::-webkit-scrollbar{display:none;}
+.playlist-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 20px;cursor:pointer;
+  color:#555;font-size:0.8rem;
+  transition:color 0.18s,background 0.18s;
+}
+.playlist-item:hover{color:#ccc;background:var(--glass);}
+.playlist-item.active{color:#fff;}
+.pl-img{
+  width:36px;height:36px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;flex-shrink:0;
+}
+.pl-info{min-width:0;}
+.pl-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:0.8rem;}
+.pl-count{font-size:0.68rem;color:#444;margin-top:1px;}
+
+/* ====== MAIN ====== */
+.main{
+  grid-area:main;
+  overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:#222 transparent;
+  background:radial-gradient(ellipse 80% 40% at 50% 0%, rgba(229,9,20,0.07) 0%, transparent 60%),var(--bg);
+}
+.main::-webkit-scrollbar{width:6px;}
+.main::-webkit-scrollbar-track{background:transparent;}
+.main::-webkit-scrollbar-thumb{background:#222;border-radius:3px;}
+
+/* topbar */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  padding:14px 28px;
+  background:rgba(11,11,11,0.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;
+}
+.topbar-search{
+  flex:1;max-width:340px;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.07);border:1px solid var(--border2);
+  border-radius:24px;padding:9px 16px;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.topbar-search:focus-within{border-color:rgba(229,9,20,0.4);box-shadow:0 0 16px rgba(229,9,20,0.1);}
+.topbar-search input{
+  background:none;border:none;color:#fff;
+  font-family:'Heebo',sans-serif;font-size:0.9rem;outline:none;flex:1;
+}
+.topbar-search input::placeholder{color:#333;}
+.topbar-search-icon{color:#444;font-size:0.9rem;}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-right:auto;}
+.topbar-btn{
+  padding:7px 16px;border-radius:20px;border:1px solid var(--border2);
+  background:var(--glass);color:#ccc;font-family:'Heebo',sans-serif;
+  font-size:0.8rem;cursor:pointer;transition:all 0.18s;
+}
+.topbar-btn:hover{background:var(--glass2);color:#fff;border-color:rgba(255,255,255,0.2);}
+.topbar-btn.active{background:rgba(229,9,20,0.1);color:#ff7070;border-color:rgba(229,9,20,0.3);}
+
+/* content padding */
+.content{padding:28px 28px 20px;}
+
+/* greeting */
+.greeting{margin-bottom:28px;}
+.greeting h1{font-size:1.8rem;font-weight:900;margin-bottom:4px;letter-spacing:-0.5px;}
+.greeting p{color:#555;font-size:0.85rem;}
+
+/* category pills */
+.cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;}
+.cat-pill{
+  padding:7px 18px;border-radius:20px;border:1px solid var(--border);
+  background:var(--glass);color:#777;font-size:0.8rem;font-weight:600;
+  cursor:pointer;transition:all 0.18s;white-space:nowrap;
+}
+.cat-pill:hover{color:#ddd;background:var(--glass2);}
+.cat-pill.active{
+  background:rgba(229,9,20,0.12);color:#ff7070;
+  border-color:rgba(229,9,20,0.4);
+  box-shadow:0 0 14px rgba(229,9,20,0.1);
+}
+
+/* section titles */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sec-title{font-size:1rem;font-weight:800;color:#ddd;letter-spacing:0.2px;}
+.sec-more{font-size:0.78rem;color:#555;cursor:pointer;transition:color 0.18s;}
+.sec-more:hover{color:#ccc;}
+
+/* section spacing */
+.section{margin-bottom:36px;}
+
+/* SONG LIST (main list view) */
+.song-list{display:flex;flex-direction:column;gap:2px;}
+.song-row{
+  display:grid;
+  grid-template-columns:32px 44px 1fr auto auto;
+  align-items:center;gap:12px;
+  padding:8px 12px;border-radius:8px;
+  cursor:pointer;transition:background 0.15s;
+  position:relative;
+}
+.song-row:hover{background:var(--glass2);}
+.song-row.playing{background:rgba(229,9,20,0.07);}
+.song-num{
+  font-size:0.82rem;color:#444;text-align:center;
+  font-family:'Bebas Neue',cursive;font-size:1rem;
+}
+.song-row.playing .song-num{color:var(--red);}
+.song-row:hover .song-num{display:none;}
+.song-play-icon{
+  display:none;font-size:0.9rem;color:#fff;
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+}
+/* actually put it where num is */
+.song-num-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:32px;}
+.song-num-wrap .snw-num{font-family:'Bebas Neue',cursive;font-size:1rem;color:#444;transition:opacity 0.15s;}
+.song-num-wrap .snw-play{position:absolute;opacity:0;font-size:0.85rem;color:#fff;transition:opacity 0.15s;}
+.song-row:hover .snw-num{opacity:0;}
+.song-row:hover .snw-play{opacity:1;}
+.song-row.playing .snw-num{color:var(--red);}
+.song-row.playing .snw-play{opacity:0;}
+.song-row.playing:hover .snw-num{opacity:0;}
+.song-row.playing:hover .snw-play{opacity:1;}
+.song-thumb{
+  width:44px;height:44px;border-radius:6px;
+  overflow:hidden;flex-shrink:0;position:relative;
+  background:var(--bg3);
+}
+.song-thumb img{width:100%;height:100%;object-fit:cover;}
+.song-thumb-eq{
+  position:absolute;inset:0;background:rgba(0,0,0,0.6);
+  display:none;align-items:center;justify-content:center;
+  font-size:1.1rem;
+}
+.song-row.playing .song-thumb-eq{display:flex;}
+.song-info{min-width:0;}
+.song-name{font-size:0.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ddd;transition:color 0.15s;}
+.song-row.playing .song-name{color:var(--red);}
+.song-row:hover .song-name{color:#fff;}
+.song-artist{font-size:0.75rem;color:#555;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.song-duration{font-size:0.78rem;color:#444;font-family:'Bebas Neue',cursive;font-size:0.9rem;flex-shrink:0;}
+.song-actions{display:flex;align-items:center;gap:4px;opacity:0;transition:opacity 0.15s;}
+.song-row:hover .song-actions{opacity:1;}
+.song-act-btn{
+  background:none;border:none;color:#666;font-size:0.82rem;
+  cursor:pointer;padding:4px 6px;border-radius:4px;
+  transition:color 0.15s,background 0.15s;
+}
+.song-act-btn:hover{color:#fff;background:var(--glass2);}
+.song-act-btn.liked{color:#ff4466;}
+
+/* CARD GRID */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;}
+.music-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;
+  position:relative;
+}
+.music-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 40px rgba(0,0,0,0.5);
+  border-color:rgba(229,9,20,0.2);
+}
+.mc-img{
+  width:100%;aspect-ratio:1;
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;position:relative;overflow:hidden;
+}
+.mc-play-btn{
+  position:absolute;bottom:8px;left:8px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--red);border:none;color:#fff;
+  font-size:1rem;cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,0.5);
+  opacity:0;transform:translateY(6px);
+  transition:opacity 0.2s,transform 0.2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.music-card:hover .mc-play-btn{opacity:1;transform:translateY(0);}
+.mc-body{padding:10px 12px 12px;}
+.mc-name{font-size:0.82rem;font-weight:700;color:#ddd;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mc-sub{font-size:0.72rem;color:#555;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* gradient backgrounds for cards */
+.gc1{background:linear-gradient(135deg,#0f172a,#1e3a5f);}
+.gc2{background:linear-gradient(135deg,#1a0000,#5c1a1a);}
+.gc3{background:linear-gradient(135deg,#001a0d,#1a5c3a);}
+.gc4{background:linear-gradient(135deg,#140025,#3d0070);}
+.gc5{background:linear-gradient(135deg,#1a0d00,#5c3a00);}
+.gc6{background:linear-gradient(135deg,#001820,#004d6b);}
+.gc7{background:linear-gradient(135deg,#1a001a,#5c005c);}
+.gc8{background:linear-gradient(135deg,#0d1a00,#3a5c00);}
+
+/* ====== PLAYER BAR ====== */
+.player{
+  grid-area:player;
+  background:rgba(8,8,8,0.97);
+  border-top:1px solid var(--border2);
+  display:grid;
+  grid-template-columns:1fr 2fr 1fr;
+  align-items:center;
+  padding:0 24px;
+  position:relative;z-index:100;
+  backdrop-filter:blur(20px);
+}
+.player::before{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(229,9,20,0.35),transparent);
+}
+
+/* now playing */
+.now-playing{display:flex;align-items:center;gap:12px;min-width:0;}
+.np-thumb{
+  width:54px;height:54px;border-radius:8px;
+  overflow:hidden;flex-shrink:0;background:var(--bg3);
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:1.5rem;
+  position:relative;
+}
+.np-thumb img{width:100%;height:100%;object-fit:cover;}
+.np-thumb-eq{
+  position:absolute;inset:0;background:rgba(0,0,0,0.65);
+  align-items:center;justify-content:center;font-size:1.2rem;
+  display:none;
+}
+.np-thumb-eq.show{display:flex;}
+.np-info{min-width:0;}
+.np-name{font-size:0.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ddd;}
+.np-artist{font-size:0.73rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.np-heart{
+  background:none;border:none;color:#444;font-size:1rem;
+  cursor:pointer;padding:6px;transition:color 0.15s,transform 0.15s;flex-shrink:0;
+}
+.np-heart:hover{color:#ff4466;transform:scale(1.15);}
+.np-heart.liked{color:#ff4466;}
+
+/* controls */
+.controls{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0;}
+.ctrl-btns{display:flex;align-items:center;gap:18px;}
+.ctrl-btn{
+  background:none;border:none;color:#888;
+  font-size:1rem;cursor:pointer;
+  transition:color 0.15s,transform 0.15s;
+  display:flex;align-items:center;justify-content:center;
+  padding:4px;
+}
+.ctrl-btn:hover{color:#fff;transform:scale(1.08);}
+.ctrl-btn.active{color:var(--red);}
+.ctrl-play{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--red);border:none;color:#fff;
+  font-size:1rem;cursor:pointer;
+  transition:transform 0.15s,box-shadow 0.15s,background 0.15s;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 18px rgba(229,9,20,0.4);
+}
+.ctrl-play:hover{transform:scale(1.06);box-shadow:0 0 28px rgba(229,9,20,0.6);}
+.progress-bar{
+  display:flex;align-items:center;gap:10px;width:100%;max-width:500px;
+}
+.prog-time{font-size:0.68rem;color:#444;font-family:'Bebas Neue',cursive;letter-spacing:1px;min-width:28px;text-align:center;}
+.prog-track{
+  flex:1;height:4px;background:#2a2a2a;border-radius:2px;
+  cursor:pointer;position:relative;
+  transition:height 0.15s;
+}
+.prog-track:hover{height:6px;}
+.prog-fill{height:100%;border-radius:2px;background:var(--red);position:relative;transition:width 0.1s linear;}
+.prog-fill::after{
+  content:'';position:absolute;left:100%;top:50%;transform:translate(-50%,-50%);
+  width:12px;height:12px;border-radius:50%;background:#fff;
+  opacity:0;transition:opacity 0.15s;box-shadow:0 0 8px rgba(229,9,20,0.5);
+}
+.prog-track:hover .prog-fill::after{opacity:1;}
+
+/* volume + right controls */
+.player-right{display:flex;align-items:center;gap:12px;justify-content:flex-end;}
+.vol-wrap{display:flex;align-items:center;gap:8px;}
+.vol-icon{background:none;border:none;color:#555;font-size:0.9rem;cursor:pointer;transition:color 0.15s;}
+.vol-icon:hover{color:#ccc;}
+.vol-slider{
+  width:90px;height:4px;background:#2a2a2a;border-radius:2px;
+  cursor:pointer;-webkit-appearance:none;appearance:none;
+  transition:height 0.15s;
+}
+.vol-slider:hover{height:6px;}
+.vol-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;
+  border-radius:50%;background:#fff;cursor:pointer;
+  box-shadow:0 0 6px rgba(0,0,0,0.5);
+}
+.vol-slider::-moz-range-thumb{
+  width:12px;height:12px;border-radius:50%;
+  background:#fff;cursor:pointer;border:none;
+}
+
+/* youtube hidden */
+#yt-player{position:fixed;bottom:200px;left:-9999px;width:320px;height:180px;opacity:0;pointer-events:none;z-index:-1;}
+
+/* equalizer animation */
+@keyframes eq1{0%,100%{transform:scaleY(0.4);}50%{transform:scaleY(1);}}
+@keyframes eq2{0%,100%{transform:scaleY(1);}50%{transform:scaleY(0.3);}}
+@keyframes eq3{0%,100%{transform:scaleY(0.6);}33%{transform:scaleY(1);}66%{transform:scaleY(0.2);}}
+.eq-bars{display:flex;align-items:flex-end;gap:2px;height:16px;}
+.eq-bar{width:3px;border-radius:1px;background:var(--red);transform-origin:bottom;}
+.eq-bar:nth-child(1){height:100%;animation:eq1 0.8s ease-in-out infinite;}
+.eq-bar:nth-child(2){height:70%;animation:eq2 0.6s ease-in-out infinite;}
+.eq-bar:nth-child(3){height:90%;animation:eq3 0.9s ease-in-out infinite;}
+.eq-bar:nth-child(4){height:50%;animation:eq1 0.7s ease-in-out infinite 0.2s;}
+.eq-bars.paused .eq-bar{animation-play-state:paused;}
+
+/* toasts */
+.toast{
+  position:fixed;bottom:calc(var(--player-h) + 16px);left:50%;
+  transform:translateX(-50%) translateY(16px);opacity:0;
+  background:rgba(20,20,20,0.95);backdrop-filter:blur(16px);
+  border:1px solid var(--border2);color:#ddd;
+  padding:10px 20px;border-radius:10px;font-size:0.85rem;
+  z-index:9999;transition:all 0.3s;pointer-events:none;
+  display:flex;align-items:center;gap:8px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* search results highlight */
+.song-row.hidden{display:none;}
+
+/* responsive */
+@media(max-width:700px){
+  body{grid-template-columns:1fr;grid-template-areas:"main" "player";}
+  .sidebar{display:none;}
+  .player{grid-template-columns:1fr 1fr;}
+  .player-right{display:none;}
+}
+
+/* scrollbar for main area */
+.playlists-list::-webkit-scrollbar{display:none;}
+
+/* failed songs */
+.song-row.failed{opacity:0.32;pointer-events:none;}
+.song-row.failed .song-name::after{content:' ⚠️';font-size:0.7rem;}
+.song-row.failed .song-duration::before{content:'—  ';}
+/* loading indicator */
+.song-row.loading .song-duration{color:var(--red);animation:shimmer 1s ease-in-out infinite;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo" onclick="showView('home')">
+    RANI
+    <span>MUSIC PLAYER</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="snav-item active" onclick="showView('home');setActive(this)">
+      <span class="snav-icon">🏠</span> בית
+    </div>
+    <div class="snav-item" onclick="showView('search');setActive(this)">
+      <span class="snav-icon">🔍</span> חיפוש
+    </div>
+    <div class="snav-item" onclick="showView('liked');setActive(this)">
+      <span class="snav-icon">❤️</span> אהבתי
+    </div>
+  </nav>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section-title">פלייליסטים</div>
+  <div class="playlists-list" id="sidebar-playlists"></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main" id="main-area">
+  <div class="topbar">
+    <div class="topbar-search">
+      <span class="topbar-search-icon">🔍</span>
+      <input type="text" placeholder="שיר, אמן, ז'אנר..." id="search-input" oninput="handleSearch(this.value)">
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="shuffleAll()">🔀 ערבוב</button>
+      <button class="topbar-btn" onclick="window.location.href='../netlify/index.html'">← חזרה לאתר</button>
+    </div>
+  </div>
+  <div class="content" id="main-content"></div>
+</main>
+
+<!-- PLAYER BAR -->
+<div class="player">
+  <!-- Now playing -->
+  <div class="now-playing">
+    <div class="np-thumb" id="np-thumb">
+      <span id="np-thumb-emoji">🎵</span>
+      <img id="np-thumb-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px;">
+      <div class="np-thumb-eq" id="np-eq">
+        <div class="eq-bars" id="eq-bars">
+          <div class="eq-bar"></div><div class="eq-bar"></div>
+          <div class="eq-bar"></div><div class="eq-bar"></div>
+        </div>
+      </div>
+    </div>
+    <div class="np-info">
+      <div class="np-name" id="np-name">בחר שיר</div>
+      <div class="np-artist" id="np-artist">—</div>
+    </div>
+    <button class="np-heart" id="np-heart" onclick="toggleLikeCurrent()">♡</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="ctrl-btns">
+      <button class="ctrl-btn" id="btn-shuffle" onclick="toggleShuffle()" title="ערבוב">🔀</button>
+      <button class="ctrl-btn" onclick="prevSong()" title="קודם">⏮</button>
+      <button class="ctrl-play" id="btn-play" onclick="togglePlay()">▶</button>
+      <button class="ctrl-btn" onclick="nextSong()" title="הבא">⏭</button>
+      <button class="ctrl-btn" id="btn-repeat" onclick="toggleRepeat()" title="חזרה">🔁</button>
+    </div>
+    <div class="progress-bar">
+      <span class="prog-time" id="prog-current">0:00</span>
+      <div class="prog-track" id="prog-track" onclick="seekTo(event)">
+        <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+      <span class="prog-time" id="prog-total">0:00</span>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div class="player-right">
+    <div class="vol-wrap">
+      <button class="vol-icon" onclick="toggleMute()">🔊</button>
+      <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="80" oninput="setVolume(this.value)">
+    </div>
+  </div>
+</div>
+
+<!-- YouTube player (hidden) -->
+<div id="yt-player"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const PLAYLISTS = [
+  {
+    id:'pop-il', name:'פופ ישראלי', emoji:'🇮🇱', color:'gc2',
+    desc:'הלהיטים הכי חמים מישראל'
+  },
+  {
+    id:'trap-il', name:'טראפ ישראלי', emoji:'🔥', color:'gc4',
+    desc:'ביטים ישראלים קשים'
+  },
+  {
+    id:'intl', name:'בינלאומי', emoji:'🌍', color:'gc6',
+    desc:'להיטים מהעולם'
+  },
+  {
+    id:'rap-us', name:'ראפ אמריקאי', emoji:'🎤', color:'gc7',
+    desc:'ראפ מהמיינסטרים'
+  },
+  {
+    id:'chill', name:'צ\'יל', emoji:'🌊', color:'gc1',
+    desc:'ויברות נינוחות'
+  },
+  {
+    id:'rnb', name:'R&B', emoji:'💜', color:'gc8',
+    desc:'ריתמ אנד בלוז'
+  },
+];
+
+// Songs with YouTube IDs
+// ✅ = highly reliable embed  ⚡ = medium confidence
+const SONGS = [
+  // ═══ פופ ישראלי ═══
+  {id:1,  name:'כולם מדברים',       artist:'אייל גולן',           playlist:'pop-il',  yt:'h2IQMM8rJgc', duration:'3:28'},
+  {id:2,  name:'מלכה',              artist:'עומר אדם',            playlist:'pop-il',  yt:'sX7Ky5XTUPE', duration:'3:15'},
+  {id:3,  name:'אחד ואחד',          artist:'ישי ריבו',            playlist:'pop-il',  yt:'HcRfGDOHb7s', duration:'4:30'},
+  {id:4,  name:'ת\'ת\'ת\'',         artist:'Static & Ben El',     playlist:'pop-il',  yt:'Cf3SZ9Aw5Nk', duration:'3:10'},
+  {id:5,  name:'נהיה בסדר',         artist:'עידן רפאל אפרים',     playlist:'pop-il',  yt:'GrdJ3ZHgGAs',  duration:'3:55'},
+  {id:6,  name:'שיר של אהבה',       artist:'עומר אדם',            playlist:'pop-il',  yt:'IiyFkd6t3Rg', duration:'3:40'},
+  {id:7,  name:'לרקוד',             artist:'נועה קירל',           playlist:'pop-il',  yt:'P5Kkq7K3fSc', duration:'3:22'},
+  {id:8,  name:'מי שאני',           artist:'קובי פרץ',            playlist:'pop-il',  yt:'N_W17blCpMY', duration:'4:05'},
+  {id:9,  name:'להיות איתך',        artist:'ישי ריבו',            playlist:'pop-il',  yt:'7_EX8PCRQRI', duration:'4:15'},
+  {id:10, name:'היא',               artist:'אייל גולן',           playlist:'pop-il',  yt:'Bql3CPQEjZo', duration:'3:35'},
+
+  // ═══ טראפ ישראלי ═══
+  {id:11, name:'FELA',              artist:'נסו סקסי',            playlist:'trap-il', yt:'kcHr_hKmwqQ', duration:'2:58'},
+  {id:12, name:'בן אדם',           artist:'בר גוזלן',            playlist:'trap-il', yt:'HLQiKhcFEug', duration:'3:22'},
+  {id:13, name:'לחוף הים',          artist:'ניב עמיאל',          playlist:'trap-il', yt:'GVYbRPEoxEE', duration:'3:38'},
+  {id:14, name:'כוחות',             artist:'טביב',               playlist:'trap-il', yt:'J7p4bzqLvF8', duration:'2:55'},
+  {id:15, name:'Free',              artist:'אייגל',               playlist:'trap-il', yt:'TxRR7iC6GKA', duration:'3:10'},
+  {id:16, name:'YELA',              artist:'טל שלם',             playlist:'trap-il', yt:'kDo_oBXL7vY', duration:'3:05'},
+  {id:17, name:'על הבמה',           artist:'נסו סקסי',           playlist:'trap-il', yt:'jzfJqn6VFPk', duration:'3:18'},
+  {id:18, name:'מדינה',             artist:'כריסטל',             playlist:'trap-il', yt:'p5Qlob85FoE', duration:'3:30'},
+
+  // ═══ בינלאומי ✅ ═══
+  {id:19, name:'Shape of You',       artist:'Ed Sheeran',         playlist:'intl', yt:'JGwWNGJdvx8', duration:'3:53'},
+  {id:20, name:'Perfect',            artist:'Ed Sheeran',         playlist:'intl', yt:'2Vv-BfVoq4g', duration:'4:23'},
+  {id:21, name:'Thinking Out Loud',  artist:'Ed Sheeran',         playlist:'intl', yt:'lp-EO5I60KA', duration:'3:59'},
+  {id:22, name:'Despacito',          artist:'Luis Fonsi',         playlist:'intl', yt:'ktvTqknDobU', duration:'4:42'},
+  {id:23, name:'Uptown Funk',        artist:'Bruno Mars',         playlist:'intl', yt:'OPf0YbXqDm0', duration:'4:00'},
+  {id:24, name:'Counting Stars',     artist:'OneRepublic',        playlist:'intl', yt:'hT_nvWreIhg', duration:'4:17'},
+  {id:25, name:'See You Again',      artist:'Wiz Khalifa',        playlist:'intl', yt:'RgKAFK5djSk', duration:'3:50'},
+  {id:26, name:'Lean On',            artist:'Major Lazer',        playlist:'intl', yt:'YqeW9_5kURI', duration:'2:57'},
+  {id:27, name:'Closer',             artist:'The Chainsmokers',   playlist:'intl', yt:'PT2_F-1esPk', duration:'4:05'},
+  {id:28, name:'Something Just Like This', artist:'Chainsmokers & Coldplay', playlist:'intl', yt:'FM7MFYoylVs', duration:'4:07'},
+  {id:29, name:'Havana',             artist:'Camila Cabello',     playlist:'intl', yt:'HCjNJDNzw8Y', duration:'3:37'},
+  {id:30, name:'Bad Guy',            artist:'Billie Eilish',      playlist:'intl', yt:'DyDfgMOUjCI', duration:'3:14'},
+  {id:31, name:'Heat Waves',         artist:'Glass Animals',      playlist:'intl', yt:'mRD0-GxqHVo', duration:'3:59'},
+  {id:32, name:'Watermelon Sugar',   artist:'Harry Styles',       playlist:'intl', yt:'E07s5ZYygMg', duration:'2:54'},
+  {id:33, name:'Believer',           artist:'Imagine Dragons',    playlist:'intl', yt:'7wtfhZwyrcc', duration:'3:24'},
+  {id:34, name:'Thunder',            artist:'Imagine Dragons',    playlist:'intl', yt:'fKopy74weus', duration:'3:07'},
+  {id:35, name:'Natural',            artist:'Imagine Dragons',    playlist:'intl', yt:'e4Ao-iNPPUc', duration:'3:08'},
+  {id:36, name:'Stressed Out',       artist:'Twenty One Pilots',  playlist:'intl', yt:'pXRviuL6vMY', duration:'3:22'},
+  {id:37, name:'Let Her Go',         artist:'Passenger',          playlist:'intl', yt:'RBumgq5yVrA', duration:'4:14'},
+  {id:38, name:'Sugar',              artist:'Maroon 5',           playlist:'intl', yt:'09R8_2nJtjg', duration:'3:55'},
+  {id:39, name:'Memories',           artist:'Maroon 5',           playlist:'intl', yt:'SlPhMPnQ58k', duration:'3:09'},
+  {id:40, name:'Rolling in the Deep',artist:'Adele',              playlist:'intl', yt:'rYEDA3JcQqw', duration:'3:49'},
+  {id:41, name:'Hello',              artist:'Adele',              playlist:'intl', yt:'YQHsXMglC9A', duration:'4:55'},
+
+  // ═══ ראפ אמריקאי ✅ ═══
+  {id:42, name:'God\'s Plan',        artist:'Drake',              playlist:'rap-us', yt:'xpVfcZ0ZcFM', duration:'3:19'},
+  {id:43, name:'HUMBLE.',            artist:'Kendrick Lamar',     playlist:'rap-us', yt:'tvTRZJ-4EyI', duration:'2:57'},
+  {id:44, name:'Rockstar',           artist:'Post Malone',        playlist:'rap-us', yt:'UceaB4D0jpo', duration:'3:38'},
+  {id:45, name:'Sunflower',          artist:'Post Malone & Swae Lee', playlist:'rap-us', yt:'ApXoWvfEYVU', duration:'2:38'},
+  {id:46, name:'Circles',            artist:'Post Malone',        playlist:'rap-us', yt:'xWggTb45brM', duration:'3:35'},
+  {id:47, name:'Congratulations',    artist:'Post Malone',        playlist:'rap-us', yt:'SC4xMk98Pdc', duration:'3:39'},
+  {id:48, name:'Old Town Road',      artist:'Lil Nas X',          playlist:'rap-us', yt:'w2Ov5jzm3j8', duration:'1:53'},
+  {id:49, name:'MONTERO',            artist:'Lil Nas X',          playlist:'rap-us', yt:'6swmTBVI83k', duration:'2:17'},
+  {id:50, name:'SICKO MODE',         artist:'Travis Scott',       playlist:'rap-us', yt:'6ONRf7h3Mdk', duration:'5:12'},
+  {id:51, name:'In My Feelings',     artist:'Drake',              playlist:'rap-us', yt:'DRS_PpOrUZ4', duration:'3:37'},
+  {id:52, name:'Mo Bamba',           artist:'Sheck Wes',          playlist:'rap-us', yt:'vB8WcFkCxPo', duration:'2:47'},
+  {id:53, name:'Mask Off',           artist:'Future',             playlist:'rap-us', yt:'6JqyXITFh2A', duration:'3:44'},
+
+  // ═══ צ'יל ✅ ═══
+  {id:54, name:'Sunset Lover',       artist:'Petit Biscuit',      playlist:'chill', yt:'iFAoGTFqFW4', duration:'4:37'},
+  {id:55, name:'Waves',              artist:'Mr. Probz',          playlist:'chill', yt:'QE_Lq3mZ1As', duration:'3:49'},
+  {id:56, name:'Golden Hour',        artist:'JVKE',               playlist:'chill', yt:'PEM0Vs8jf1w', duration:'3:29'},
+  {id:57, name:'Stay With Me',       artist:'Sam Smith',          playlist:'chill', yt:'pB-5XG-DbAA', duration:'2:52'},
+  {id:58, name:'Shallow',            artist:'Lady Gaga & Bradley Cooper', playlist:'chill', yt:'Bo_L2AlYsls', duration:'3:35'},
+  {id:59, name:'As It Was',          artist:'Harry Styles',       playlist:'chill', yt:'H5v3kku4y6Q', duration:'2:37'},
+  {id:60, name:'Easy On Me',         artist:'Adele',              playlist:'chill', yt:'U3ASj1L6_sY', duration:'3:44'},
+  {id:61, name:'drivers license',    artist:'Olivia Rodrigo',     playlist:'chill', yt:'ZmDBbnmKpqQ', duration:'4:02'},
+  {id:62, name:'Telepatía',          artist:'Kali Uchis',         playlist:'chill', yt:'kFiX1L3THII', duration:'2:50'},
+  {id:63, name:'Levitating',         artist:'Dua Lipa',           playlist:'chill', yt:'TUVcZfQe-Kw', duration:'3:23'},
+  {id:64, name:'Cold Heart',         artist:'Elton John & Dua Lipa', playlist:'chill', yt:'MzHNhpkuoA8', duration:'3:31'},
+  {id:65, name:'good 4 u',           artist:'Olivia Rodrigo',     playlist:'chill', yt:'gNi_6U5Pm_o', duration:'2:58'},
+
+  // ═══ R&B ═══
+  {id:66, name:'Leave the Door Open',artist:'Silk Sonic',         playlist:'rnb', yt:'adLGHcg_dJ8', duration:'4:02'},
+  {id:67, name:'Essence',            artist:'Wizkid ft. Tems',    playlist:'rnb', yt:'UcIOkR8FLYA', duration:'4:04'},
+  {id:68, name:'Saturn',             artist:'SZA',                playlist:'rnb', yt:'iEtEFCxvZRo', duration:'3:52'},
+  {id:69, name:'Snooze',             artist:'SZA',                playlist:'rnb', yt:'7OIj_0jkRCM', duration:'3:21'},
+  {id:70, name:'Golden',             artist:'JVKE',               playlist:'rnb', yt:'PEM0Vs8jf1w', duration:'3:02'},
+  {id:71, name:'Peaches',            artist:'Justin Bieber',      playlist:'rnb', yt:'tQ0yjYMHA3U', duration:'3:18'},
+  {id:72, name:'Earned It',          artist:'The Weeknd',         playlist:'rnb', yt:'waU75jdUnYw', duration:'4:07'},
+  {id:73, name:'Can\'t Feel My Face',artist:'The Weeknd',         playlist:'rnb', yt:'KEI4qSrkPAs', duration:'3:35'},
+  {id:74, name:'Die For You',        artist:'The Weeknd',         playlist:'rnb', yt:'B51l4kOWpLQ', duration:'4:20'},
+  {id:75, name:'No Guidance',        artist:'Chris Brown ft. Drake', playlist:'rnb', yt:'LRipBIFnVK4', duration:'5:07'},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentSongIdx = -1;
+let isPlaying = false;
+let isShuffle = false;
+let isRepeat = false;
+let isMuted = false;
+let volume = 80;
+let likedSongs = JSON.parse(localStorage.getItem('rl-music-liked') || '[]');
+let currentView = 'home';
+let currentPlaylist = null;
+let ytPlayer = null;
+let ytReady = false;
+let progressInterval = null;
+let currentQueue = [...SONGS];
+let failedSongs = new Set();   // IDs of songs that failed to load
+let loadTimeout = null;        // timeout for stuck loading songs
+
+// ============================================================
+// YOUTUBE API
+// ============================================================
+function onYouTubeIframeAPIReady() {
+  ytPlayer = new YT.Player('yt-player', {
+    height:'180', width:'320',
+    playerVars:{autoplay:0, controls:0, rel:0, modestbranding:1, iv_load_policy:3},
+    events:{
+      onReady: () => { ytReady = true; setVolume(volume); },
+      onStateChange: onYtStateChange,
+      onError: (e) => { handleSongError(e.data); }
+    }
+  });
+}
+
+function handleSongError(code) {
+  // code 100 = not found, 101/150 = embedding disabled, 2 = bad id
+  const song = currentQueue[currentSongIdx];
+  if (!song) return;
+  failedSongs.add(song.yt);
+  markSongFailed(song.id);
+  clearTimeout(loadTimeout);
+  const msg = (code === 101 || code === 150)
+    ? '🚫 השיר חסום להטמעה — עובר הלאה...'
+    : '⚠️ שיר לא זמין — עובר הלאה...';
+  showToast(msg);
+  setTimeout(() => nextSong(), 1600);
+}
+
+function markSongFailed(songId) {
+  document.querySelectorAll(`.song-row[data-song-id="${songId}"]`)
+    .forEach(r => { r.classList.remove('loading'); r.classList.add('failed'); });
+}
+
+function onYtStateChange(e) {
+  // 1 = playing, 2 = paused, 0 = ended, 3 = buffering
+  if (e.data === 1) {
+    // Song started — clear loading state + cancel timeout
+    clearTimeout(loadTimeout);
+    document.querySelectorAll('.song-row.loading').forEach(r => r.classList.remove('loading'));
+    isPlaying = true;
+    updatePlayBtn();
+    startProgress();
+    showEq(true);
+  } else if (e.data === 2) {
+    isPlaying = false;
+    updatePlayBtn();
+    clearInterval(progressInterval);
+    showEq(false);
+  } else if (e.data === 0) {
+    if (isRepeat) {
+      ytPlayer.seekTo(0);
+      ytPlayer.playVideo();
+    } else {
+      nextSong();
+    }
+  }
+}
+
+// ============================================================
+// PLAYER CONTROLS
+// ============================================================
+function playSong(idx, queue) {
+  if (queue) currentQueue = queue;
+  currentSongIdx = idx;
+  const song = currentQueue[idx];
+  if (!song) return;
+
+  // Skip songs that already failed in this session
+  if (failedSongs.has(song.yt)) {
+    nextSong(); return;
+  }
+
+  // Mark row as loading
+  document.querySelectorAll('.song-row').forEach(r => r.classList.remove('loading'));
+  document.querySelectorAll(`.song-row[data-song-id="${song.id}"]`)
+    .forEach(r => r.classList.add('loading'));
+
+  if (ytReady) {
+    ytPlayer.loadVideoById(song.yt);
+    ytPlayer.setVolume(isMuted ? 0 : volume);
+  }
+  isPlaying = true;
+  updateNowPlaying(song);
+  updatePlayBtn();
+  highlightSong(song.id);
+
+  // Timeout: if song doesn't start within 9s, treat as broken
+  clearTimeout(loadTimeout);
+  loadTimeout = setTimeout(() => {
+    if (currentQueue[currentSongIdx]?.yt === song.yt && !ytPlayer?.getDuration?.()) {
+      handleSongError(0);
+    }
+  }, 9000);
+}
+
+function togglePlay() {
+  if (currentSongIdx < 0) {
+    playSong(0, [...SONGS]);
+    return;
+  }
+  if (isPlaying) {
+    ytPlayer && ytPlayer.pauseVideo();
+  } else {
+    ytPlayer && ytPlayer.playVideo();
+    startProgress();
+    showEq(true);
+  }
+  isPlaying = !isPlaying;
+  updatePlayBtn();
+  showEq(isPlaying);
+}
+
+function nextSong() {
+  let idx = currentSongIdx + 1;
+  if (isShuffle) idx = Math.floor(Math.random() * currentQueue.length);
+  if (idx >= currentQueue.length) idx = 0;
+  playSong(idx);
+}
+
+function prevSong() {
+  if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getCurrentTime() > 3) {
+    ytPlayer.seekTo(0);
+    return;
+  }
+  let idx = currentSongIdx - 1;
+  if (idx < 0) idx = currentQueue.length - 1;
+  playSong(idx);
+}
+
+function toggleShuffle() {
+  isShuffle = !isShuffle;
+  document.getElementById('btn-shuffle').classList.toggle('active', isShuffle);
+  showToast(isShuffle ? '🔀 ערבוב פעיל' : '🔀 ערבוב כבוי');
+}
+
+function toggleRepeat() {
+  isRepeat = !isRepeat;
+  document.getElementById('btn-repeat').classList.toggle('active', isRepeat);
+  showToast(isRepeat ? '🔁 חזרה פעילה' : '🔁 חזרה כבויה');
+}
+
+function toggleMute() {
+  isMuted = !isMuted;
+  if (ytPlayer) ytPlayer.setVolume(isMuted ? 0 : volume);
+  document.querySelector('.vol-icon').textContent = isMuted ? '🔇' : '🔊';
+}
+
+function setVolume(val) {
+  volume = parseInt(val);
+  if (ytPlayer) ytPlayer.setVolume(volume);
+  document.querySelector('.vol-icon').textContent = volume === 0 ? '🔇' : volume < 50 ? '🔉' : '🔊';
+}
+
+function seekTo(e) {
+  const track = document.getElementById('prog-track');
+  const rect = track.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  if (ytPlayer && ytPlayer.getDuration) {
+    ytPlayer.seekTo(pct * ytPlayer.getDuration(), true);
+  }
+}
+
+function shuffleAll() {
+  const q = [...SONGS].sort(() => Math.random() - 0.5);
+  playSong(0, q);
+  showToast('🔀 מנגן בסדר אקראי!');
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function startProgress() {
+  clearInterval(progressInterval);
+  progressInterval = setInterval(() => {
+    if (!ytPlayer || !ytPlayer.getDuration) return;
+    const cur = ytPlayer.getCurrentTime() || 0;
+    const dur = ytPlayer.getDuration() || 0;
+    if (!dur) return;
+    const pct = (cur / dur) * 100;
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-current').textContent = fmtTime(cur);
+    document.getElementById('prog-total').textContent = fmtTime(dur);
+  }, 500);
+}
+
+function fmtTime(s) {
+  s = Math.floor(s);
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+
+// ============================================================
+// UI UPDATES
+// ============================================================
+function updateNowPlaying(song) {
+  document.getElementById('np-name').textContent = song.name;
+  document.getElementById('np-artist').textContent = song.artist;
+  const img = document.getElementById('np-thumb-img');
+  const emoji = document.getElementById('np-thumb-emoji');
+  // Auto-build thumbnail from YouTube ID
+  const thumbUrl = `https://i.ytimg.com/vi/${song.yt}/hqdefault.jpg`;
+  img.onload = () => { img.style.display = 'block'; emoji.style.display = 'none'; };
+  img.onerror = () => { img.style.display = 'none'; emoji.style.display = 'block'; };
+  img.src = thumbUrl;
+  updateLikeBtn(song.id);
+  document.title = `${song.name} – ${song.artist} | Rani Music`;
+}
+
+function updatePlayBtn() {
+  document.getElementById('btn-play').textContent = isPlaying ? '⏸' : '▶';
+}
+
+function showEq(show) {
+  const eq = document.getElementById('np-eq');
+  const bars = document.getElementById('eq-bars');
+  eq.classList.toggle('show', show);
+  if (show) bars.classList.remove('paused');
+  else bars.classList.add('paused');
+}
+
+function highlightSong(songId) {
+  document.querySelectorAll('.song-row').forEach(r => {
+    r.classList.toggle('playing', parseInt(r.dataset.songId) === songId);
+  });
+}
+
+function updateLikeBtn(songId) {
+  const btn = document.getElementById('np-heart');
+  const liked = likedSongs.includes(songId);
+  btn.classList.toggle('liked', liked);
+  btn.textContent = liked ? '♥' : '♡';
+}
+
+function setActive(el) {
+  document.querySelectorAll('.snav-item').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ============================================================
+// LIKES
+// ============================================================
+function toggleLike(songId, btn) {
+  const idx = likedSongs.indexOf(songId);
+  if (idx > -1) {
+    likedSongs.splice(idx, 1);
+    btn && btn.classList.remove('liked');
+    btn && (btn.textContent = '♡');
+  } else {
+    likedSongs.push(songId);
+    btn && btn.classList.add('liked');
+    btn && (btn.textContent = '♥');
+  }
+  localStorage.setItem('rl-music-liked', JSON.stringify(likedSongs));
+  updateLikeBtn(currentQueue[currentSongIdx]?.id);
+  if (currentView === 'liked') renderLiked();
+}
+
+function toggleLikeCurrent() {
+  const song = currentQueue[currentSongIdx];
+  if (!song) return;
+  toggleLike(song.id, document.getElementById('np-heart'));
+}
+
+// ============================================================
+// VIEWS
+// ============================================================
+function showView(view, playlistId) {
+  currentView = view;
+  currentPlaylist = playlistId || null;
+  const content = document.getElementById('main-content');
+  document.getElementById('search-input').value = '';
+
+  if (view === 'home') renderHome(content);
+  else if (view === 'search') renderSearch(content);
+  else if (view === 'liked') renderLiked(content);
+  else if (view === 'playlist') renderPlaylist(content, playlistId);
+}
+
+function renderHome(content) {
+  content = content || document.getElementById('main-content');
+
+  // Featured playlists
+  let featCards = PLAYLISTS.map(pl => {
+    const count = SONGS.filter(s => s.playlist === pl.id).length;
+    return `
+      <div class="music-card" onclick="showView('playlist','${pl.id}')">
+        <div class="mc-img ${pl.color}">
+          <span>${pl.emoji}</span>
+          <button class="mc-play-btn" onclick="event.stopPropagation();playPlaylist('${pl.id}')">▶</button>
+        </div>
+        <div class="mc-body">
+          <div class="mc-name">${pl.name}</div>
+          <div class="mc-sub">${pl.desc} · ${count} שירים</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Top songs (first 10 by id)
+  const topSongs = SONGS.slice(0, 10);
+
+  content.innerHTML = `
+    <div class="greeting">
+      <h1>🎵 מה שומעים היום?</h1>
+      <p>בחר פלייליסט או שיר ותתחיל להנות</p>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">📁 פלייליסטים</div>
+      </div>
+      <div class="card-grid">${featCards}</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">🔥 להיטים חמים</div>
+        <div class="sec-more" onclick="shuffleAll()">הפעל הכל</div>
+      </div>
+      <div class="song-list">${renderSongRows(topSongs, [...SONGS])}</div>
+    </div>
+  `;
+}
+
+function renderPlaylist(content, playlistId) {
+  content = content || document.getElementById('main-content');
+  const pl = PLAYLISTS.find(p => p.id === playlistId);
+  if (!pl) return;
+  const songs = SONGS.filter(s => s.playlist === playlistId);
+
+  content.innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:24px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border);">
+      <div class="mc-img ${pl.color}" style="width:160px;height:160px;border-radius:14px;font-size:5rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+        ${pl.emoji}
+      </div>
+      <div>
+        <div style="font-size:0.7rem;color:#555;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">פלייליסט</div>
+        <h1 style="font-size:2.2rem;font-weight:900;margin-bottom:8px;">${pl.name}</h1>
+        <div style="color:#555;font-size:0.85rem;margin-bottom:16px;">${pl.desc}</div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <button onclick="playPlaylist('${pl.id}')" style="background:var(--red);border:none;color:#fff;padding:12px 28px;border-radius:24px;font-family:'Heebo',sans-serif;font-weight:700;font-size:0.95rem;cursor:pointer;box-shadow:0 0 20px rgba(229,9,20,0.4);">▶ הפעל</button>
+          <button onclick="shufflePlaylist('${pl.id}')" style="background:var(--glass2);border:1px solid var(--border2);color:#ccc;padding:12px 22px;border-radius:24px;font-family:'Heebo',sans-serif;font-weight:600;font-size:0.88rem;cursor:pointer;">🔀 ערבב</button>
+          <span style="color:#444;font-size:0.8rem;">${songs.length} שירים</span>
+        </div>
+      </div>
+    </div>
+    <div class="song-list">${renderSongRows(songs, songs)}</div>
+  `;
+}
+
+function renderLiked(content) {
+  content = content || document.getElementById('main-content');
+  const songs = SONGS.filter(s => likedSongs.includes(s.id));
+
+  content.innerHTML = `
+    <div style="margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);">
+      <h1 style="font-size:2rem;font-weight:900;margin-bottom:6px;">❤️ שירים שאהבתי</h1>
+      <div style="color:#444;font-size:0.85rem;">${songs.length} שירים</div>
+      ${songs.length > 0 ? `<button onclick="playLiked()" style="margin-top:16px;background:var(--red);border:none;color:#fff;padding:11px 26px;border-radius:24px;font-family:'Heebo',sans-serif;font-weight:700;cursor:pointer;box-shadow:0 0 18px rgba(229,9,20,0.35);">▶ הפעל הכל</button>` : ''}
+    </div>
+    ${songs.length === 0
+      ? `<div style="text-align:center;padding:60px 20px;color:#333;font-size:0.9rem;">לחץ ♡ על שיר כדי להוסיף לפה</div>`
+      : `<div class="song-list">${renderSongRows(songs, songs)}</div>`
+    }
+  `;
+}
+
+function renderSearch(content) {
+  content = content || document.getElementById('main-content');
+  content.innerHTML = `
+    <div style="margin-bottom:24px;">
+      <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:6px;">🔍 חיפוש</h1>
+      <div style="color:#444;font-size:0.85rem;">חפש שיר, אמן או ז'אנר</div>
+    </div>
+    <div class="song-list" id="search-results">${renderSongRows(SONGS, SONGS)}</div>
+  `;
+  document.getElementById('search-input').focus();
+}
+
+function handleSearch(val) {
+  if (currentView !== 'search') {
+    showView('search');
+  }
+  val = val.toLowerCase().trim();
+  document.querySelectorAll('#search-results .song-row').forEach(row => {
+    const name = row.dataset.name || '';
+    const artist = row.dataset.artist || '';
+    const show = !val || name.includes(val) || artist.includes(val);
+    row.classList.toggle('hidden', !show);
+  });
+}
+
+function renderSongRows(songs, queue) {
+  return songs.map((song, i) => {
+    const liked = likedSongs.includes(song.id);
+    const failed = failedSongs.has(song.yt);
+    const thumb = `https://i.ytimg.com/vi/${song.yt}/mqdefault.jpg`;
+    return `
+      <div class="song-row${failed?' failed':''}" data-song-id="${song.id}"
+           data-name="${song.name.toLowerCase()}" data-artist="${song.artist.toLowerCase()}"
+           ondblclick="playSongDirect(${song.id})">
+        <div class="song-num-wrap">
+          <span class="snw-num">${i+1}</span>
+          <span class="snw-play" onclick="playSongDirect(${song.id})">▶</span>
+        </div>
+        <div class="song-thumb">
+          <img src="${thumb}" alt="" onerror="this.style.display='none'" loading="lazy">
+          <div class="song-thumb-eq">
+            <div class="eq-bars"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div>
+          </div>
+        </div>
+        <div class="song-info">
+          <div class="song-name">${song.name}</div>
+          <div class="song-artist">${song.artist}</div>
+        </div>
+        <div class="song-actions">
+          <button class="song-act-btn ${liked?'liked':''}" onclick="event.stopPropagation();toggleLike(${song.id},this)">${liked?'♥':'♡'}</button>
+        </div>
+        <div class="song-duration">${song.duration}</div>
+      </div>`;
+  }).join('');
+}
+
+// Play a specific song by its global id, building a queue from the current playlist context
+function playSongDirect(songId) {
+  const song = SONGS.find(s => s.id === songId);
+  if (!song) return;
+  // Build queue = all songs in same playlist, starting from this song
+  const pl = SONGS.filter(s => s.playlist === song.playlist);
+  const startIdx = pl.findIndex(s => s.id === songId);
+  playSong(startIdx, pl);
+}
+
+function playPlaylist(playlistId) {
+  const songs = SONGS.filter(s => s.playlist === playlistId);
+  if (songs.length) playSong(0, songs);
+}
+
+function shufflePlaylist(playlistId) {
+  const songs = [...SONGS.filter(s => s.playlist === playlistId)].sort(() => Math.random() - 0.5);
+  playSong(0, songs);
+}
+
+function playLiked() {
+  const songs = SONGS.filter(s => likedSongs.includes(s.id));
+  if (songs.length) playSong(0, songs);
+}
+
+// ============================================================
+// SIDEBAR PLAYLISTS
+// ============================================================
+function renderSidebar() {
+  const el = document.getElementById('sidebar-playlists');
+  el.innerHTML = PLAYLISTS.map(pl => `
+    <div class="playlist-item" onclick="showView('playlist','${pl.id}')">
+      <div class="pl-img ${pl.color}">${pl.emoji}</div>
+      <div class="pl-info">
+        <div class="pl-name">${pl.name}</div>
+        <div class="pl-count">${SONGS.filter(s=>s.playlist===pl.id).length} שירים</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderSidebar();
+showView('home');
+
+// Load YouTube API
+const ytScript = document.createElement('script');
+ytScript.src = 'https://www.youtube.com/iframe_api';
+document.head.appendChild(ytScript);
+</script>
+</body>
+</html>
