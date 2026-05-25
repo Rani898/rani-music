@@ -193,6 +193,7 @@ body{
   background:var(--bg3);
 }
 .song-thumb img{width:100%;height:100%;object-fit:cover;}
+.song-thumb-drive{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:rgba(229,9,20,0.15);border-radius:6px;}
 .song-thumb-eq{
   position:absolute;inset:0;background:rgba(0,0,0,0.6);
   display:none;align-items:center;justify-content:center;
@@ -499,6 +500,7 @@ body{
 
 <!-- YouTube player (hidden) -->
 <div id="yt-player"></div>
+<audio id="gd-player" preload="none"></audio>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
@@ -531,6 +533,10 @@ const PLAYLISTS = [
   {
     id:'rnb', name:'R&B', emoji:'💜', color:'gc8',
     desc:'ריתמ אנד בלוז'
+  },
+  {
+    id:'hebrew', name:'מוזיקה יהודית', emoji:'✡️', color:'gc3',
+    desc:'מוסיקה חסידית ויהודית — ישי ריבו, אברהם פריד ועוד'
   },
 ];
 
@@ -612,6 +618,34 @@ const SONGS = [
   {id:64, name:'Cold Heart',         artist:'Elton John & Dua Lipa', playlist:'chill', yt:'MzHNhpkuoA8', duration:'3:31'},
   {id:65, name:'good 4 u',           artist:'Olivia Rodrigo',     playlist:'chill', yt:'gNi_6U5Pm_o', duration:'2:58'},
 
+  // ═══ מוזיקה יהודית 🎵 (Google Drive via shir-bot.ze-kal.top) ═══
+  {id:101, name:'שלום עליכם',            artist:'אברהם פריד',      playlist:'hebrew', type:'drive', driveId:'1UwkHxwICLqLlKdA_VSeI5i4Vwuwsyppa', duration:'3:30'},
+  {id:102, name:'ניגון שמחה',             artist:'אברהם פריד',      playlist:'hebrew', type:'drive', driveId:'13lxJtWSBaIfocaYbJ6aDDDF3e0JF69-D', duration:'3:15'},
+  {id:103, name:'גם כי אלך',             artist:'אברהם פריד',      playlist:'hebrew', type:'drive', driveId:'18rgNHWqqquB474wWunIcrOy3ZaSsp_E7', duration:'4:00'},
+  {id:104, name:'בוקר טוב רבונו של עולם',artist:'אברהם פריד',      playlist:'hebrew', type:'drive', driveId:'1yMKejzEIqbzZl996tbq-W-OY1I_5RJjM', duration:'3:45'},
+  {id:105, name:'ברכנו',                 artist:'אברהם פריד',      playlist:'hebrew', type:'drive', driveId:'1nZrBLAjRVgwdMd-oJ6SVgtTh1pcmWdZN', duration:'3:20'},
+  {id:106, name:'אבא',                   artist:'חיים ישראל',      playlist:'hebrew', type:'drive', driveId:'182ifd6-pfFyiMGfP1LdXmL3F2SnTT052', duration:'4:10'},
+  {id:107, name:'אדון הסליחות',           artist:'חיים ישראל',      playlist:'hebrew', type:'drive', driveId:'1wRAELogMrgISB5J-wcG7p6Llf6ltz5YP', duration:'3:50'},
+  {id:108, name:'דרך שאבדה',             artist:'חיים ישראל',      playlist:'hebrew', type:'drive', driveId:'1BnV6nSWTBOICevXgDCttlFnzJY7RjCgI', duration:'4:30'},
+  {id:109, name:'בשצף קצף',              artist:'חיים ישראל',      playlist:'hebrew', type:'drive', driveId:'1eGspnZhVWt57axJphfYkoSdMKHvgWq3_', duration:'3:40'},
+  {id:110, name:'מתנות החיים',            artist:'חיים ישראל',      playlist:'hebrew', type:'drive', driveId:'19Tdl87nmA3T8u6ZfrhkNlkqU7hmLn9VW', duration:'3:55'},
+  {id:111, name:'עומד בשער',             artist:'עמיר בניון',      playlist:'hebrew', type:'drive', driveId:'1re03nflrMABQbBFZtZ16nWfOr8_GlGz_', duration:'4:00'},
+  {id:112, name:'מחר',                   artist:'עמיר בניון',      playlist:'hebrew', type:'drive', driveId:'1UgEToOzzjuq2mC9lHq-QWeZybjr_aMFQ', duration:'3:30'},
+  {id:113, name:'ה\' שמעתי שמעך',        artist:'עמיר בניון',      playlist:'hebrew', type:'drive', driveId:'1deoEWMTijoOaxxRpD00ncOQEGkZBhMpZ', duration:'4:15'},
+  {id:114, name:'ספירה לאחור',           artist:'עמיר בניון',      playlist:'hebrew', type:'drive', driveId:'17MNQZ21weLitP2HK_uqyAmpJq2UKYH_u', duration:'3:25'},
+  {id:115, name:'עד עולם',               artist:'עמיר בניון',      playlist:'hebrew', type:'drive', driveId:'1lifA_47avbcZQYxvjg2Wy9sKK_S1WuMr', duration:'3:50'},
+  {id:116, name:'לא לחינם',              artist:'ישי ריבו',        playlist:'hebrew', type:'drive', driveId:'1zK5xVL72I0oiN73BOmhgs1croZtD71U2', duration:'3:45'},
+  {id:117, name:'בן אדם',                artist:'ישי ריבו',        playlist:'hebrew', type:'drive', driveId:'1T8VUynom5fNVSSFuMIngAlFh1nb0h7Ly', duration:'5:00'},
+  {id:118, name:'כל פעם מחדש',           artist:'ישי ריבו',        playlist:'hebrew', type:'drive', driveId:'1RMeVAxAVy68tBC4QCJ8BQcnKOiY4pZ92', duration:'4:20'},
+  {id:119, name:'אני שייך לעם',          artist:'ישי ריבו',        playlist:'hebrew', type:'drive', driveId:'1GkhNB8bKAMh1ThTdYEUlIZh0ANahxDIh', duration:'3:35'},
+  {id:120, name:'פורחים לשובם',          artist:'ישי ריבו',        playlist:'hebrew', type:'drive', driveId:'1tk8XVC2E2ojaEyLGIlREzNcxu8KJ4knv', duration:'4:05'},
+  {id:121, name:'ניגון געגועים',          artist:'מוטי שטיינמץ',    playlist:'hebrew', type:'drive', driveId:'1A2KbG8o0aUK0wzzUCz4Np2vbNc5K4hil', duration:'3:40'},
+  {id:122, name:'להודות',                artist:'מוטי שטיינמץ',    playlist:'hebrew', type:'drive', driveId:'1Q0zT0gYt0g8_rvEDDIL3gW2nRyWIcu3x', duration:'3:55'},
+  {id:123, name:'צפת',                   artist:'מוטי שטיינמץ',    playlist:'hebrew', type:'drive', driveId:'1fJGjwd03kwvK2fGowzlQJ1HT9iSfRqfK', duration:'4:10'},
+  {id:124, name:'תעיתי',                 artist:'מוטי שטיינמץ',    playlist:'hebrew', type:'drive', driveId:'1t1cEYNRiu2j_tK8KIhp7IJT_B0lzZN_R', duration:'3:30'},
+  {id:125, name:'ריבון העולמים',         artist:'מוטי שטיינמץ',    playlist:'hebrew', type:'drive', driveId:'1Ro_-Ejujo-K6rsdEFQCgn4YpkYSsPD-J', duration:'3:50'},
+  {id:126, name:'רחמנא',                 artist:'מוטי שטיינמץ',    playlist:'hebrew', type:'drive', driveId:'1RN7htv18FbmTbmx5HKirt5zFwZhxMjbu', duration:'4:00'},
+
   // ═══ R&B ═══
   {id:66, name:'Leave the Door Open',artist:'Silk Sonic',         playlist:'rnb', yt:'adLGHcg_dJ8', duration:'4:02'},
   {id:67, name:'Essence',            artist:'Wizkid ft. Tems',    playlist:'rnb', yt:'UcIOkR8FLYA', duration:'4:04'},
@@ -643,6 +677,8 @@ let progressInterval = null;
 let currentQueue = [...SONGS];
 let failedSongs = new Set();   // IDs of songs that failed to load
 let loadTimeout = null;        // timeout for stuck loading songs
+let gdPlayer = null;           // HTML5 audio element for Google Drive songs
+let currentSongType = 'yt';    // 'yt' or 'drive'
 
 // ============================================================
 // YOUTUBE API
@@ -657,6 +693,54 @@ function onYouTubeIframeAPIReady() {
       onError: (e) => { handleSongError(e.data); }
     }
   });
+}
+
+// ============================================================
+// AUDIO (GOOGLE DRIVE) PLAYER INIT
+// ============================================================
+function initAudioPlayer() {
+  gdPlayer = document.getElementById('gd-player');
+  gdPlayer.volume = volume / 100;
+  gdPlayer.addEventListener('playing', () => {
+    clearTimeout(loadTimeout);
+    document.querySelectorAll('.song-row.loading').forEach(r => r.classList.remove('loading'));
+    isPlaying = true;
+    updatePlayBtn();
+    startProgress();
+    showEq(true);
+  });
+  gdPlayer.addEventListener('pause', () => {
+    isPlaying = false;
+    updatePlayBtn();
+    clearInterval(progressInterval);
+    showEq(false);
+  });
+  gdPlayer.addEventListener('ended', () => {
+    if (isRepeat) {
+      gdPlayer.currentTime = 0;
+      gdPlayer.play();
+    } else {
+      nextSong();
+    }
+  });
+  gdPlayer.addEventListener('error', () => {
+    handleDriveError();
+  });
+  // If loading stalls
+  gdPlayer.addEventListener('stalled', () => {
+    clearTimeout(loadTimeout);
+    loadTimeout = setTimeout(handleDriveError, 9000);
+  });
+}
+
+function handleDriveError() {
+  const song = currentQueue[currentSongIdx];
+  if (!song) return;
+  failedSongs.add(song.driveId);
+  markSongFailed(song.id);
+  clearTimeout(loadTimeout);
+  showToast('⚠️ שיר לא זמין — עובר הלאה...');
+  setTimeout(() => nextSong(), 1600);
 }
 
 function handleSongError(code) {
@@ -712,8 +796,12 @@ function playSong(idx, queue) {
   const song = currentQueue[idx];
   if (!song) return;
 
+  const isDrive = song.type === 'drive';
+  currentSongType = isDrive ? 'drive' : 'yt';
+
   // Skip songs that already failed in this session
-  if (failedSongs.has(song.yt)) {
+  const skipKey = isDrive ? song.driveId : song.yt;
+  if (failedSongs.has(skipKey)) {
     nextSong(); return;
   }
 
@@ -722,27 +810,56 @@ function playSong(idx, queue) {
   document.querySelectorAll(`.song-row[data-song-id="${song.id}"]`)
     .forEach(r => r.classList.add('loading'));
 
-  if (ytReady) {
-    ytPlayer.loadVideoById(song.yt);
-    ytPlayer.setVolume(isMuted ? 0 : volume);
+  if (isDrive) {
+    // Stop YouTube if it was playing
+    if (ytPlayer && ytReady) { try { ytPlayer.stopVideo(); } catch(e){} }
+    // Play via HTML5 audio
+    if (!gdPlayer) initAudioPlayer();
+    const gdUrl = `https://drive.google.com/uc?export=download&id=${song.driveId}`;
+    gdPlayer.src = gdUrl;
+    gdPlayer.volume = isMuted ? 0 : volume / 100;
+    gdPlayer.play().catch(() => handleDriveError());
+  } else {
+    // Stop audio if it was playing
+    if (gdPlayer && !gdPlayer.paused) { gdPlayer.pause(); gdPlayer.src = ''; }
+    if (ytReady) {
+      ytPlayer.loadVideoById(song.yt);
+      ytPlayer.setVolume(isMuted ? 0 : volume);
+    }
   }
+
   isPlaying = true;
   updateNowPlaying(song);
   updatePlayBtn();
   highlightSong(song.id);
 
-  // Timeout: if song doesn't start within 9s, treat as broken
+  // Timeout: if song doesn't start within 12s, treat as broken
   clearTimeout(loadTimeout);
   loadTimeout = setTimeout(() => {
-    if (currentQueue[currentSongIdx]?.yt === song.yt && !ytPlayer?.getDuration?.()) {
-      handleSongError(0);
+    if (currentSongIdx !== idx) return; // song changed
+    if (isDrive) {
+      if (gdPlayer && gdPlayer.readyState < 2) handleDriveError();
+    } else {
+      if (currentQueue[currentSongIdx]?.yt === song.yt && !ytPlayer?.getDuration?.()) {
+        handleSongError(0);
+      }
     }
-  }, 9000);
+  }, 12000);
 }
 
 function togglePlay() {
   if (currentSongIdx < 0) {
     playSong(0, [...SONGS]);
+    return;
+  }
+  if (currentSongType === 'drive') {
+    if (!gdPlayer) return;
+    if (isPlaying) {
+      gdPlayer.pause();
+    } else {
+      gdPlayer.play().catch(() => {});
+    }
+    // isPlaying is updated by the audio event listeners
     return;
   }
   if (isPlaying) {
@@ -765,8 +882,12 @@ function nextSong() {
 }
 
 function prevSong() {
-  if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getCurrentTime() > 3) {
-    ytPlayer.seekTo(0);
+  const curTime = currentSongType === 'drive'
+    ? (gdPlayer ? gdPlayer.currentTime : 0)
+    : (ytPlayer && ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0);
+  if (curTime > 3) {
+    if (currentSongType === 'drive') { if (gdPlayer) gdPlayer.currentTime = 0; }
+    else { ytPlayer && ytPlayer.seekTo(0); }
     return;
   }
   let idx = currentSongIdx - 1;
@@ -789,21 +910,29 @@ function toggleRepeat() {
 function toggleMute() {
   isMuted = !isMuted;
   if (ytPlayer) ytPlayer.setVolume(isMuted ? 0 : volume);
+  if (gdPlayer) gdPlayer.muted = isMuted;
   document.querySelector('.vol-icon').textContent = isMuted ? '🔇' : '🔊';
 }
 
 function setVolume(val) {
   volume = parseInt(val);
   if (ytPlayer) ytPlayer.setVolume(volume);
+  if (gdPlayer) gdPlayer.volume = volume / 100;
   document.querySelector('.vol-icon').textContent = volume === 0 ? '🔇' : volume < 50 ? '🔉' : '🔊';
 }
 
 function seekTo(e) {
   const track = document.getElementById('prog-track');
   const rect = track.getBoundingClientRect();
-  const pct = (e.clientX - rect.left) / rect.width;
-  if (ytPlayer && ytPlayer.getDuration) {
-    ytPlayer.seekTo(pct * ytPlayer.getDuration(), true);
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  if (currentSongType === 'drive') {
+    if (gdPlayer && gdPlayer.duration) {
+      gdPlayer.currentTime = pct * gdPlayer.duration;
+    }
+  } else {
+    if (ytPlayer && ytPlayer.getDuration) {
+      ytPlayer.seekTo(pct * ytPlayer.getDuration(), true);
+    }
   }
 }
 
@@ -819,9 +948,16 @@ function shuffleAll() {
 function startProgress() {
   clearInterval(progressInterval);
   progressInterval = setInterval(() => {
-    if (!ytPlayer || !ytPlayer.getDuration) return;
-    const cur = ytPlayer.getCurrentTime() || 0;
-    const dur = ytPlayer.getDuration() || 0;
+    let cur = 0, dur = 0;
+    if (currentSongType === 'drive') {
+      if (!gdPlayer) return;
+      cur = gdPlayer.currentTime || 0;
+      dur = gdPlayer.duration || 0;
+    } else {
+      if (!ytPlayer || !ytPlayer.getDuration) return;
+      cur = ytPlayer.getCurrentTime() || 0;
+      dur = ytPlayer.getDuration() || 0;
+    }
     if (!dur) return;
     const pct = (cur / dur) * 100;
     document.getElementById('prog-fill').style.width = pct + '%';
@@ -843,11 +979,18 @@ function updateNowPlaying(song) {
   document.getElementById('np-artist').textContent = song.artist;
   const img = document.getElementById('np-thumb-img');
   const emoji = document.getElementById('np-thumb-emoji');
-  // Auto-build thumbnail from YouTube ID
-  const thumbUrl = `https://i.ytimg.com/vi/${song.yt}/hqdefault.jpg`;
-  img.onload = () => { img.style.display = 'block'; emoji.style.display = 'none'; };
-  img.onerror = () => { img.style.display = 'none'; emoji.style.display = 'block'; };
-  img.src = thumbUrl;
+  if (song.type === 'drive') {
+    // Drive songs — show music emoji
+    img.style.display = 'none';
+    emoji.style.display = 'block';
+    emoji.textContent = '🎵';
+  } else {
+    // Auto-build thumbnail from YouTube ID
+    const thumbUrl = `https://i.ytimg.com/vi/${song.yt}/hqdefault.jpg`;
+    img.onload = () => { img.style.display = 'block'; emoji.style.display = 'none'; };
+    img.onerror = () => { img.style.display = 'none'; emoji.style.display = 'block'; };
+    img.src = thumbUrl;
+  }
   updateLikeBtn(song.id);
   document.title = `${song.name} – ${song.artist} | Rani Music`;
 }
@@ -1038,8 +1181,11 @@ function handleSearch(val) {
 function renderSongRows(songs, queue) {
   return songs.map((song, i) => {
     const liked = likedSongs.includes(song.id);
-    const failed = failedSongs.has(song.yt);
-    const thumb = `https://i.ytimg.com/vi/${song.yt}/mqdefault.jpg`;
+    const isDrive = song.type === 'drive';
+    const failed = failedSongs.has(isDrive ? song.driveId : song.yt);
+    const thumbHtml = isDrive
+      ? `<div class="song-thumb-drive">🎵</div>`
+      : `<img src="https://i.ytimg.com/vi/${song.yt}/mqdefault.jpg" alt="" onerror="this.style.display='none'" loading="lazy">`;
     return `
       <div class="song-row${failed?' failed':''}" data-song-id="${song.id}"
            data-name="${song.name.toLowerCase()}" data-artist="${song.artist.toLowerCase()}"
@@ -1049,7 +1195,7 @@ function renderSongRows(songs, queue) {
           <span class="snw-play" onclick="playSongDirect(${song.id})">▶</span>
         </div>
         <div class="song-thumb">
-          <img src="${thumb}" alt="" onerror="this.style.display='none'" loading="lazy">
+          ${thumbHtml}
           <div class="song-thumb-eq">
             <div class="eq-bars"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div>
           </div>
@@ -1124,6 +1270,7 @@ function showToast(msg) {
 // ============================================================
 renderSidebar();
 showView('home');
+initAudioPlayer(); // Initialize HTML5 audio player for Google Drive songs
 
 // Load YouTube API
 const ytScript = document.createElement('script');
