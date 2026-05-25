@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rani Music</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --red:#E50914;--red-dark:#B20710;
+  --bg:#0b0b0b;--bg2:#111;--bg3:#181818;--bg4:#202020;
+  --text:#f0f0f0;--text2:#888;--text3:#444;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --glass:rgba(255,255,255,0.03);--glass2:rgba(255,255,255,0.06);
+  --player-h:90px;--sidebar-w:230px;
+}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);color:var(--text);font-family:'Heebo',sans-serif;
+  display:grid;
+  grid-template-rows:1fr var(--player-h);
+  grid-template-columns:var(--sidebar-w) 1fr;
+  grid-template-areas:"sidebar main" "player player";
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  grid-area:sidebar;background:rgba(0,0,0,0.55);
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.logo{
+  padding:20px 18px 16px;cursor:pointer;flex-shrink:0;
+  border-bottom:1px solid var(--border);
+  font-family:'Bebas Neue',cursive;font-size:1.85rem;color:var(--red);
+  letter-spacing:3px;text-shadow:0 0 20px rgba(229,9,20,0.4);
+}
+.logo small{display:block;font-family:'Heebo',sans-serif;font-size:0.72rem;
+  color:#333;letter-spacing:1px;font-weight:400;margin-top:-2px;}
+.snav{padding:12px 0;flex-shrink:0;}
+.si{
+  display:flex;align-items:center;gap:11px;padding:10px 18px;
+  color:#666;font-size:0.83rem;font-weight:600;cursor:pointer;
+  transition:all 0.15s;position:relative;
+}
+.si:hover{color:#ddd;background:var(--glass);}
+.si.on{color:#fff;}
+.si.on::after{
+  content:'';position:absolute;right:0;top:22%;bottom:22%;
+  width:3px;background:var(--red);border-radius:3px 0 0 3px;
+  box-shadow:0 0 8px var(--red);
+}
+.si-ic{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+.sdiv{height:1px;background:var(--border);margin:6px 18px;}
+.stitle{padding:12px 18px 6px;font-size:0.62rem;font-weight:700;
+  letter-spacing:2px;color:#2a2a2a;text-transform:uppercase;flex-shrink:0;}
+.pllist{flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:8px;}
+.pllist::-webkit-scrollbar{display:none;}
+.pli{
+  display:flex;align-items:center;gap:9px;padding:7px 18px;
+  cursor:pointer;color:#444;font-size:0.78rem;transition:all 0.15s;
+}
+.pli:hover{color:#bbb;background:var(--glass);}
+.pli.on{color:#ddd;}
+.plem{
+  width:34px;height:34px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;
+}
+.plname{font-weight:600;font-size:0.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.plct{font-size:0.66rem;color:#2e2e2e;margin-top:1px;}
+
+/* ===== MAIN ===== */
+.main{grid-area:main;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:#1a1a1a transparent;
+  background:radial-gradient(ellipse 70% 35% at 50% 0%,rgba(229,9,20,0.06),transparent 60%),var(--bg);
+}
+.main::-webkit-scrollbar{width:5px;}
+.main::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:3px;}
+
+/* topbar */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;gap:12px;padding:13px 24px;
+  background:rgba(9,9,9,0.88);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+.searchbox{
+  flex:1;max-width:320px;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.06);border:1px solid var(--border2);
+  border-radius:22px;padding:8px 14px;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.searchbox:focus-within{border-color:rgba(229,9,20,0.4);box-shadow:0 0 14px rgba(229,9,20,0.08);}
+.searchbox input{
+  background:none;border:none;color:#fff;
+  font-family:'Heebo',sans-serif;font-size:0.88rem;outline:none;flex:1;
+}
+.searchbox input::placeholder{color:#2e2e2e;}
+.tbr{margin-right:auto;display:flex;gap:8px;}
+.tbtn{
+  padding:7px 15px;border-radius:18px;border:1px solid var(--border2);
+  background:var(--glass);color:#888;font-family:'Heebo',sans-serif;
+  font-size:0.78rem;cursor:pointer;transition:all 0.15s;
+}
+.tbtn:hover{color:#ddd;background:var(--glass2);}
+.tbtn.on{background:rgba(229,9,20,0.1);color:#ff7070;border-color:rgba(229,9,20,0.3);}
+
+/* content */
+.content{padding:24px 24px 16px;}
+.greet{margin-bottom:24px;}
+.greet h1{font-size:1.7rem;font-weight:900;letter-spacing:-0.5px;margin-bottom:3px;}
+.greet p{color:#3a3a3a;font-size:0.82rem;}
+
+/* section */
+.sec{margin-bottom:32px;}
+.shead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.stit{font-size:0.95rem;font-weight:800;color:#ccc;}
+.smore{font-size:0.75rem;color:#444;cursor:pointer;transition:color 0.15s;}
+.smore:hover{color:#aaa;}
+
+/* card grid */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+.card{
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;position:relative;
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,0.5);border-color:rgba(229,9,20,0.18);}
+.card-img{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2.8rem;position:relative;}
+.card-play{
+  position:absolute;bottom:7px;left:7px;width:36px;height:36px;border-radius:50%;
+  background:var(--red);border:none;color:#fff;font-size:0.9rem;cursor:pointer;
+  box-shadow:0 3px 12px rgba(0,0,0,0.5);
+  opacity:0;transform:translateY(4px);transition:all 0.18s;
+  display:flex;align-items:center;justify-content:center;
+}
+.card:hover .card-play{opacity:1;transform:translateY(0);}
+.card-body{padding:9px 11px 11px;}
+.card-name{font-size:0.8rem;font-weight:700;color:#ccc;margin-bottom:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-sub{font-size:0.7rem;color:#3a3a3a;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* gradient sets */
+.g1{background:linear-gradient(135deg,#0f172a,#1e3a5f);}
+.g2{background:linear-gradient(135deg,#1a0000,#5c1a1a);}
+.g3{background:linear-gradient(135deg,#001a0d,#1a5c3a);}
+.g4{background:linear-gradient(135deg,#140025,#3d0070);}
+.g5{background:linear-gradient(135deg,#1a0d00,#5c3a00);}
+.g6{background:linear-gradient(135deg,#001820,#004d6b);}
+.g7{background:linear-gradient(135deg,#1a001a,#5c005c);}
+.g8{background:linear-gradient(135deg,#0d1a00,#3a5c00);}
+
+/* song list */
+.slist{display:flex;flex-direction:column;gap:1px;}
+.srow{
+  display:grid;grid-template-columns:28px 42px 1fr 36px 52px;
+  align-items:center;gap:10px;padding:7px 10px;border-radius:7px;
+  cursor:pointer;transition:background 0.13s;position:relative;
+}
+.srow:hover{background:var(--glass2);}
+.srow.on{background:rgba(229,9,20,0.06);}
+.srow.failed{opacity:0.28;pointer-events:none;}
+.srow.hidden{display:none;}
+.snum{display:flex;align-items:center;justify-content:center;width:28px;position:relative;}
+.snum .nn{font-family:'Bebas Neue',cursive;font-size:0.95rem;color:#333;transition:opacity 0.13s;}
+.snum .np{position:absolute;opacity:0;font-size:0.78rem;color:#fff;transition:opacity 0.13s;}
+.srow:hover .nn{opacity:0;}.srow:hover .np{opacity:1;}
+.srow.on .nn{color:var(--red);}
+.sthumb{width:42px;height:42px;border-radius:5px;overflow:hidden;
+  background:var(--bg4);flex-shrink:0;position:relative;}
+.sthumb img{width:100%;height:100%;object-fit:cover;}
+.sthumb-eq{position:absolute;inset:0;background:rgba(0,0,0,0.6);
+  display:none;align-items:center;justify-content:center;}
+.srow.on .sthumb-eq{display:flex;}
+.sinfo{min-width:0;}
+.sname{font-size:0.85rem;font-weight:600;color:#ccc;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 0.13s;}
+.srow.on .sname{color:var(--red);}
+.srow:hover .sname{color:#fff;}
+.sartist{font-size:0.72rem;color:#3a3a3a;margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.slove{background:none;border:none;color:#333;font-size:0.9rem;
+  cursor:pointer;padding:4px;transition:color 0.13s,transform 0.13s;}
+.slove:hover{color:#ff4466;transform:scale(1.15);}
+.slove.on{color:#ff4466;}
+.sdur{font-family:'Bebas Neue',cursive;font-size:0.88rem;color:#2e2e2e;
+  text-align:center;min-width:36px;}
+
+/* eq bars */
+.eqb{display:flex;align-items:flex-end;gap:2px;height:14px;}
+.eqb span{width:2px;border-radius:1px;background:var(--red);transform-origin:bottom;}
+.eqb span:nth-child(1){height:100%;animation:eq1 0.8s ease-in-out infinite;}
+.eqb span:nth-child(2){height:65%;animation:eq2 0.6s ease-in-out infinite;}
+.eqb span:nth-child(3){height:90%;animation:eq3 0.9s ease-in-out infinite;}
+.eqb span:nth-child(4){height:50%;animation:eq1 0.7s 0.2s ease-in-out infinite;}
+.eqb.paused span{animation-play-state:paused;}
+@keyframes eq1{0%,100%{transform:scaleY(0.35);}50%{transform:scaleY(1);}}
+@keyframes eq2{0%,100%{transform:scaleY(1);}50%{transform:scaleY(0.25);}}
+@keyframes eq3{0%,100%{transform:scaleY(0.55);}33%{transform:scaleY(1);}66%{transform:scaleY(0.2);}}
+
+/* playlist hero */
+.pl-hero{
+  display:flex;align-items:flex-end;gap:22px;
+  padding:0 0 24px;margin-bottom:24px;
+  border-bottom:1px solid var(--border);
+}
+.pl-hero-img{
+  width:150px;height:150px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:4.5rem;flex-shrink:0;
+}
+.pl-hero-info{}
+.pl-hero-tag{font-size:0.65rem;color:#333;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.pl-hero-title{font-size:2rem;font-weight:900;margin-bottom:6px;}
+.pl-hero-desc{color:#3a3a3a;font-size:0.82rem;margin-bottom:14px;}
+.pl-hero-btns{display:flex;gap:10px;align-items:center;}
+.pl-btn-play{
+  background:var(--red);border:none;color:#fff;
+  padding:11px 26px;border-radius:22px;
+  font-family:'Heebo',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;
+  box-shadow:0 0 18px rgba(229,9,20,0.35);transition:all 0.18s;
+}
+.pl-btn-play:hover{transform:scale(1.04);box-shadow:0 0 28px rgba(229,9,20,0.55);}
+.pl-btn-shuf{
+  background:var(--glass2);border:1px solid var(--border2);
+  color:#888;padding:10px 20px;border-radius:22px;
+  font-family:'Heebo',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;
+  transition:all 0.15s;
+}
+.pl-btn-shuf:hover{color:#ddd;background:rgba(255,255,255,0.08);}
+.pl-ct{color:#333;font-size:0.78rem;}
+
+/* ===== PLAYER ===== */
+.player{
+  grid-area:player;
+  background:rgba(6,6,6,0.97);border-top:1px solid var(--border2);
+  display:grid;grid-template-columns:1fr 2fr 1fr;
+  align-items:center;padding:0 20px;
+  position:relative;z-index:90;backdrop-filter:blur(20px);
+}
+.player::before{
+  content:'';position:absolute;top:0;left:8%;right:8%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(229,9,20,0.3),transparent);
+}
+/* now playing */
+.np{display:flex;align-items:center;gap:10px;min-width:0;}
+.np-art{
+  width:52px;height:52px;border-radius:7px;flex-shrink:0;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+  overflow:hidden;position:relative;
+}
+.np-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.np-art-eq{
+  position:absolute;inset:0;background:rgba(0,0,0,0.6);
+  display:none;align-items:center;justify-content:center;
+}
+.np-art-eq.show{display:flex;}
+.np-info{min-width:0;}
+.np-name{font-size:0.83rem;font-weight:700;color:#ddd;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.np-artist{font-size:0.7rem;color:#444;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.np-heart{
+  background:none;border:none;color:#333;font-size:0.95rem;
+  cursor:pointer;padding:6px;flex-shrink:0;transition:all 0.13s;
+}
+.np-heart:hover{color:#ff4466;transform:scale(1.15);}
+.np-heart.on{color:#ff4466;}
+/* controls */
+.ctrl{display:flex;flex-direction:column;align-items:center;gap:9px;padding:12px 0;}
+.ctrl-btns{display:flex;align-items:center;gap:16px;}
+.cb{background:none;border:none;color:#666;font-size:0.95rem;
+  cursor:pointer;transition:all 0.13s;padding:3px;
+  display:flex;align-items:center;justify-content:center;}
+.cb:hover{color:#ddd;transform:scale(1.08);}
+.cb.on{color:var(--red);}
+.cb-play{
+  width:38px;height:38px;border-radius:50%;background:var(--red);
+  border:none;color:#fff;font-size:0.95rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 16px rgba(229,9,20,0.4);transition:all 0.13s;
+}
+.cb-play:hover{transform:scale(1.07);box-shadow:0 0 26px rgba(229,9,20,0.6);}
+.prog{display:flex;align-items:center;gap:9px;width:100%;max-width:480px;}
+.prog-t{font-family:'Bebas Neue',cursive;font-size:0.8rem;color:#333;
+  min-width:26px;text-align:center;}
+.prog-bar{flex:1;height:3px;background:#1e1e1e;border-radius:2px;
+  cursor:pointer;position:relative;transition:height 0.13s;}
+.prog-bar:hover{height:5px;}
+.prog-fill{height:100%;border-radius:2px;background:var(--red);
+  position:relative;transition:width 0.1s linear;}
+.prog-fill::after{
+  content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);
+  width:10px;height:10px;border-radius:50%;background:#fff;
+  opacity:0;transition:opacity 0.13s;
+}
+.prog-bar:hover .prog-fill::after{opacity:1;}
+/* right */
+.pr{display:flex;align-items:center;gap:10px;justify-content:flex-end;}
+.vol{display:flex;align-items:center;gap:7px;}
+.vol-ic{background:none;border:none;color:#444;font-size:0.85rem;
+  cursor:pointer;transition:color 0.13s;}
+.vol-ic:hover{color:#bbb;}
+.vol-sl{
+  width:85px;height:3px;background:#1e1e1e;border-radius:2px;
+  -webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.vol-sl::-webkit-slider-thumb{
+  -webkit-appearance:none;width:11px;height:11px;
+  border-radius:50%;background:#fff;cursor:pointer;
+}
+.vol-sl::-moz-range-thumb{
+  width:11px;height:11px;border-radius:50%;background:#fff;
+  cursor:pointer;border:none;
+}
+
+/* toast */
+.toast{
+  position:fixed;bottom:calc(var(--player-h) + 14px);left:50%;
+  transform:translateX(-50%) translateY(12px);opacity:0;
+  background:rgba(18,18,18,0.95);backdrop-filter:blur(14px);
+  border:1px solid var(--border2);color:#ccc;
+  padding:9px 18px;border-radius:9px;font-size:0.82rem;
+  z-index:9999;transition:all 0.28s;pointer-events:none;
+  white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* empty */
+.empty{text-align:center;padding:60px 20px;color:#2e2e2e;font-size:0.88rem;}
+.empty span{font-size:2.5rem;display:block;margin-bottom:12px;opacity:0.3;}
+
+/* youtube hidden */
+#yt{position:fixed;bottom:180px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;}
+
+@media(max-width:650px){
+  body{grid-template-columns:1fr;grid-template-areas:"main" "player";}
+  .sidebar{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo" onclick="nav('home')">
+    RANI <span>MUSIC PLAYER</span>
+  </div>
+  <nav class="snav">
+    <div class="si on" id="si-home" onclick="nav('home');siOn(this)">
+      <span class="si-ic">🏠</span> בית
+    </div>
+    <div class="si" id="si-search" onclick="nav('search');siOn(this)">
+      <span class="si-ic">🔍</span> חיפוש
+    </div>
+    <div class="si" id="si-liked" onclick="nav('liked');siOn(this)">
+      <span class="si-ic">❤️</span> אהבתי
+    </div>
+  </nav>
+  <div class="sdiv"></div>
+  <div class="stitle">פלייליסטים</div>
+  <div class="pllist" id="pllist"></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main" id="main">
+  <div class="topbar">
+    <div class="searchbox">
+      <span style="color:#333;font-size:0.85rem;">🔍</span>
+      <input type="text" placeholder="שיר, אמן..." id="srch" oninput="doSearch(this.value)">
+    </div>
+    <div class="tbr">
+      <button class="tbtn" onclick="shuffleAll()">🔀 ערבב הכל</button>
+    </div>
+  </div>
+  <div class="content" id="content"></div>
+</main>
+
+<!-- PLAYER -->
+<div class="player">
+  <div class="np">
+    <div class="np-art" id="np-art">
+      <span id="np-em">🎵</span>
+      <img id="np-img" src="" alt="" style="display:none">
+      <div class="np-art-eq" id="np-eq">
+        <div class="eqb" id="eq-main">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+    <div class="np-info">
+      <div class="np-name" id="np-name">בחר שיר</div>
+      <div class="np-artist" id="np-artist">—</div>
+    </div>
+    <button class="np-heart" id="np-heart" onclick="loveCurrent()">♡</button>
+  </div>
+
+  <div class="ctrl">
+    <div class="ctrl-btns">
+      <button class="cb" id="btn-shuf" onclick="togShuf()" title="ערבוב">🔀</button>
+      <button class="cb" onclick="prev()" title="קודם">⏮</button>
+      <button class="cb-play" id="btn-play" onclick="togPlay()">▶</button>
+      <button class="cb" onclick="next()" title="הבא">⏭</button>
+      <button class="cb" id="btn-rep" onclick="togRep()" title="חזרה">🔁</button>
+    </div>
+    <div class="prog">
+      <span class="prog-t" id="pt-cur">0:00</span>
+      <div class="prog-bar" id="progbar" onclick="seekTo(event)">
+        <div class="prog-fill" id="progfill" style="width:0%"></div>
+      </div>
+      <span class="prog-t" id="pt-tot">0:00</span>
+    </div>
+  </div>
+
+  <div class="pr">
+    <div class="vol">
+      <button class="vol-ic" onclick="togMute()" id="vol-ic">🔊</button>
+      <input type="range" class="vol-sl" id="vol-sl" min="0" max="100" value="80" oninput="setVol(this.value)">
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="yt"></div>
+
+<script>
+/* ═══════════════════════════════
+   DATA
+═══════════════════════════════ */
+const PL = [
+  {id:'hot',   name:'🔥 Hot Right Now',  emoji:'🔥', g:'g2', desc:'הלהיטים הכי חמים עכשיו'},
+  {id:'pop',   name:'🎵 Pop Classics',   emoji:'🎵', g:'g1', desc:'הפופ הכי אהוב בעולם'},
+  {id:'rap',   name:'🎤 Hip Hop',        emoji:'🎤', g:'g7', desc:'ראפ והיפ הופ מהמיינסטרים'},
+  {id:'chill', name:'🌊 Chill Vibes',    emoji:'🌊', g:'g6', desc:'מוזיקה נינוחה לכל שעה'},
+  {id:'rnb',   name:'💜 R&B',            emoji:'💜', g:'g4', desc:'ריתמ אנד בלוז'},
+  {id:'rock',  name:'⚡ Rock & Indie',   emoji:'⚡', g:'g8', desc:'רוק ואינדי אחד'},
+];
+
+const SONGS = [
+  // 🔥 Hot Right Now
+  {id:1,  name:'As It Was',           artist:'Harry Styles',              pl:'hot',   yt:'H5v3kku4y6Q', dur:'2:37'},
+  {id:2,  name:'Heat Waves',          artist:'Glass Animals',             pl:'hot',   yt:'mRD0-GxqHVo', dur:'3:59'},
+  {id:3,  name:'Easy On Me',          artist:'Adele',                     pl:'hot',   yt:'U3ASj1L6_sY', dur:'3:44'},
+  {id:4,  name:'Watermelon Sugar',    artist:'Harry Styles',              pl:'hot',   yt:'E07s5ZYygMg', dur:'2:54'},
+  {id:5,  name:'drivers license',     artist:'Olivia Rodrigo',            pl:'hot',   yt:'ZmDBbnmKpqQ', dur:'4:02'},
+  {id:6,  name:'good 4 u',            artist:'Olivia Rodrigo',            pl:'hot',   yt:'gNi_6U5Pm_o', dur:'2:58'},
+  {id:7,  name:'Levitating',          artist:'Dua Lipa',                  pl:'hot',   yt:'TUVcZfQe-Kw', dur:'3:23'},
+  {id:8,  name:'Golden Hour',         artist:'JVKE',                      pl:'hot',   yt:'PEM0Vs8jf1w', dur:'3:29'},
+  {id:9,  name:'Telepatía',           artist:'Kali Uchis',                pl:'hot',   yt:'kFiX1L3THII', dur:'2:50'},
+  {id:10, name:'Shallow',             artist:'Lady Gaga & B. Cooper',     pl:'hot',   yt:'Bo_L2AlYsls', dur:'3:35'},
+
+  // 🎵 Pop Classics
+  {id:11, name:'Shape of You',        artist:'Ed Sheeran',                pl:'pop',   yt:'JGwWNGJdvx8', dur:'3:53'},
+  {id:12, name:'Perfect',             artist:'Ed Sheeran',                pl:'pop',   yt:'2Vv-BfVoq4g', dur:'4:23'},
+  {id:13, name:'Thinking Out Loud',   artist:'Ed Sheeran',                pl:'pop',   yt:'lp-EO5I60KA', dur:'3:59'},
+  {id:14, name:'Despacito',           artist:'Luis Fonsi',                pl:'pop',   yt:'ktvTqknDobU', dur:'4:42'},
+  {id:15, name:'Uptown Funk',         artist:'Bruno Mars',                pl:'pop',   yt:'OPf0YbXqDm0', dur:'4:00'},
+  {id:16, name:'Counting Stars',      artist:'OneRepublic',               pl:'pop',   yt:'hT_nvWreIhg', dur:'4:17'},
+  {id:17, name:'See You Again',       artist:'Wiz Khalifa',               pl:'pop',   yt:'RgKAFK5djSk', dur:'3:50'},
+  {id:18, name:'Lean On',             artist:'Major Lazer',               pl:'pop',   yt:'YqeW9_5kURI', dur:'2:57'},
+  {id:19, name:'Closer',              artist:'The Chainsmokers',          pl:'pop',   yt:'PT2_F-1esPk', dur:'4:05'},
+  {id:20, name:'Havana',              artist:'Camila Cabello',            pl:'pop',   yt:'HCjNJDNzw8Y', dur:'3:37'},
+  {id:21, name:'Sugar',               artist:'Maroon 5',                  pl:'pop',   yt:'09R8_2nJtjg', dur:'3:55'},
+  {id:22, name:'Memories',            artist:'Maroon 5',                  pl:'pop',   yt:'SlPhMPnQ58k', dur:'3:09'},
+  {id:23, name:'Let Her Go',          artist:'Passenger',                 pl:'pop',   yt:'RBumgq5yVrA', dur:'4:14'},
+  {id:24, name:'Rolling in the Deep', artist:'Adele',                     pl:'pop',   yt:'rYEDA3JcQqw', dur:'3:49'},
+  {id:25, name:'Hello',               artist:'Adele',                     pl:'pop',   yt:'YQHsXMglC9A', dur:'4:55'},
+
+  // 🎤 Hip Hop
+  {id:26, name:"God's Plan",          artist:'Drake',                     pl:'rap',   yt:'xpVfcZ0ZcFM', dur:'3:19'},
+  {id:27, name:'HUMBLE.',             artist:'Kendrick Lamar',            pl:'rap',   yt:'tvTRZJ-4EyI', dur:'2:57'},
+  {id:28, name:'Rockstar',            artist:'Post Malone',               pl:'rap',   yt:'UceaB4D0jpo', dur:'3:38'},
+  {id:29, name:'Sunflower',           artist:'Post Malone & Swae Lee',    pl:'rap',   yt:'ApXoWvfEYVU', dur:'2:38'},
+  {id:30, name:'Circles',             artist:'Post Malone',               pl:'rap',   yt:'xWggTb45brM', dur:'3:35'},
+  {id:31, name:'Congratulations',     artist:'Post Malone',               pl:'rap',   yt:'SC4xMk98Pdc', dur:'3:39'},
+  {id:32, name:'Old Town Road',       artist:'Lil Nas X',                 pl:'rap',   yt:'w2Ov5jzm3j8', dur:'1:53'},
+  {id:33, name:'MONTERO',             artist:'Lil Nas X',                 pl:'rap',   yt:'6swmTBVI83k', dur:'2:17'},
+  {id:34, name:'SICKO MODE',          artist:'Travis Scott',              pl:'rap',   yt:'6ONRf7h3Mdk', dur:'5:12'},
+  {id:35, name:'In My Feelings',      artist:'Drake',                     pl:'rap',   yt:'DRS_PpOrUZ4', dur:'3:37'},
+
+  // 🌊 Chill
+  {id:36, name:'Sunset Lover',        artist:'Petit Biscuit',             pl:'chill', yt:'iFAoGTFqFW4', dur:'4:37'},
+  {id:37, name:'Waves',               artist:'Mr. Probz',                 pl:'chill', yt:'QE_Lq3mZ1As', dur:'3:49'},
+  {id:38, name:'Stay With Me',        artist:'Sam Smith',                 pl:'chill', yt:'pB-5XG-DbAA', dur:'2:52'},
+  {id:39, name:'Something Just Like This', artist:'Chainsmokers & Coldplay', pl:'chill', yt:'FM7MFYoylVs', dur:'4:07'},
+  {id:40, name:'Bad Guy',             artist:'Billie Eilish',             pl:'chill', yt:'DyDfgMOUjCI', dur:'3:14'},
+  {id:41, name:'Cold Heart',          artist:'Elton John & Dua Lipa',     pl:'chill', yt:'MzHNhpkuoA8', dur:'3:31'},
+  {id:42, name:'Stay',                artist:'The Kid LAROI & J. Bieber', pl:'chill', yt:'kTJczUoc26U', dur:'2:22'},
+  {id:43, name:'Peaches',             artist:'Justin Bieber',             pl:'chill', yt:'tQ0yjYMHA3U', dur:'3:18'},
+
+  // 💜 R&B
+  {id:44, name:'Leave the Door Open', artist:'Silk Sonic',                pl:'rnb',   yt:'adLGHcg_dJ8', dur:'4:02'},
+  {id:45, name:'Essence',             artist:'Wizkid ft. Tems',           pl:'rnb',   yt:'UcIOkR8FLYA', dur:'4:04'},
+  {id:46, name:'Saturn',              artist:'SZA',                       pl:'rnb',   yt:'iEtEFCxvZRo', dur:'3:52'},
+  {id:47, name:'Snooze',              artist:'SZA',                       pl:'rnb',   yt:'7OIj_0jkRCM', dur:'3:21'},
+  {id:48, name:"Can't Feel My Face",  artist:'The Weeknd',                pl:'rnb',   yt:'KEI4qSrkPAs', dur:'3:35'},
+  {id:49, name:'Die For You',         artist:'The Weeknd',                pl:'rnb',   yt:'B51l4kOWpLQ', dur:'4:20'},
+  {id:50, name:'Earned It',           artist:'The Weeknd',                pl:'rnb',   yt:'waU75jdUnYw', dur:'4:07'},
+
+  // ⚡ Rock & Indie
+  {id:51, name:'Believer',            artist:'Imagine Dragons',           pl:'rock',  yt:'7wtfhZwyrcc', dur:'3:24'},
+  {id:52, name:'Thunder',             artist:'Imagine Dragons',           pl:'rock',  yt:'fKopy74weus', dur:'3:07'},
+  {id:53, name:'Natural',             artist:'Imagine Dragons',           pl:'rock',  yt:'e4Ao-iNPPUc', dur:'3:08'},
+  {id:54, name:'Stressed Out',        artist:'Twenty One Pilots',         pl:'rock',  yt:'pXRviuL6vMY', dur:'3:22'},
+  {id:55, name:'Ride',                artist:'Twenty One Pilots',         pl:'rock',  yt:'Pw-oTpRaJTs', dur:'3:55'},
+  {id:56, name:'Radioactive',         artist:'Imagine Dragons',           pl:'rock',  yt:'ktvTqknDobU', dur:'3:07'},
+];
+
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let idx = -1;
+let queue = [...SONGS];
+let playing = false;
+let shuf = false;
+let rep = false;
+let muted = false;
+let vol = 80;
+let liked = JSON.parse(localStorage.getItem('rm-liked') || '[]');
+let failed = new Set();
+let loadTmo = null;
+let progIv = null;
+let curView = 'home';
+let yt = null;
+let ytOk = false;
+
+/* ═══════════════════════════════
+   YOUTUBE
+═══════════════════════════════ */
+function onYouTubeIframeAPIReady() {
+  yt = new YT.Player('yt', {
+    height:'1', width:'1',
+    playerVars:{autoplay:0, controls:0, rel:0, modestbranding:1, iv_load_policy:3},
+    events:{
+      onReady: () => { ytOk = true; applyVol(); },
+      onStateChange: onState,
+      onError: (e) => { onErr(e.data); }
+    }
+  });
+}
+
+function onState(e) {
+  if (e.data === 1) { // playing
+    clearTimeout(loadTmo);
+    document.querySelectorAll('.srow.loading').forEach(r => r.classList.remove('loading'));
+    playing = true; updPlay(); startProg(); showEq(true);
+  } else if (e.data === 2) { // paused
+    playing = false; updPlay(); clearInterval(progIv); showEq(false);
+  } else if (e.data === 0) { // ended
+    if (rep) { yt.seekTo(0); yt.playVideo(); }
+    else next();
+  }
+}
+
+function onErr(code) {
+  const s = queue[idx];
+  if (!s) return;
+  failed.add(s.yt);
+  document.querySelectorAll(`.srow[data-id="${s.id}"]`).forEach(r => {
+    r.classList.remove('loading'); r.classList.add('failed');
+  });
+  clearTimeout(loadTmo);
+  toast(code===101||code===150 ? '🚫 השיר חסום — עובר הלאה' : '⚠️ שיר לא זמין — עובר הלאה');
+  setTimeout(() => next(), 1500);
+}
+
+/* ═══════════════════════════════
+   PLAYER
+═══════════════════════════════ */
+function play(i, q) {
+  if (q) queue = q;
+  idx = i;
+  const s = queue[i];
+  if (!s) return;
+  if (failed.has(s.yt)) { next(); return; }
+
+  document.querySelectorAll('.srow.loading').forEach(r => r.classList.remove('loading'));
+  document.querySelectorAll(`.srow[data-id="${s.id}"]`).forEach(r => r.classList.add('loading'));
+
+  if (ytOk) { yt.loadVideoById(s.yt); applyVol(); }
+  playing = true;
+  updNP(s); updPlay(); hiSong(s.id);
+
+  clearTimeout(loadTmo);
+  loadTmo = setTimeout(() => {
+    const dur = ytOk && yt.getDuration ? yt.getDuration() : 0;
+    if (!dur && queue[idx]?.yt === s.yt) onErr(0);
+  }, 9000);
+}
+
+function togPlay() {
+  if (idx < 0) { play(0, [...SONGS]); return; }
+  if (playing) { yt && yt.pauseVideo(); }
+  else { yt && yt.playVideo(); startProg(); showEq(true); }
+  playing = !playing; updPlay(); showEq(playing);
+}
+
+function next() {
+  let i = idx + 1;
+  if (shuf) i = Math.floor(Math.random() * queue.length);
+  if (i >= queue.length) i = 0;
+  play(i);
+}
+
+function prev() {
+  if (ytOk && yt.getCurrentTime && yt.getCurrentTime() > 3) { yt.seekTo(0); return; }
+  let i = idx - 1;
+  if (i < 0) i = queue.length - 1;
+  play(i);
+}
+
+function togShuf() {
+  shuf = !shuf;
+  document.getElementById('btn-shuf').classList.toggle('on', shuf);
+  toast(shuf ? '🔀 ערבוב פעיל' : '🔀 ערבוב כבוי');
+}
+
+function togRep() {
+  rep = !rep;
+  document.getElementById('btn-rep').classList.toggle('on', rep);
+  toast(rep ? '🔁 חזרה פעילה' : '🔁 חזרה כבויה');
+}
+
+function togMute() {
+  muted = !muted;
+  applyVol();
+  document.getElementById('vol-ic').textContent = muted ? '🔇' : vol < 50 ? '🔉' : '🔊';
+}
+
+function setVol(v) {
+  vol = parseInt(v);
+  applyVol();
+  document.getElementById('vol-ic').textContent = vol === 0 ? '🔇' : vol < 50 ? '🔉' : '🔊';
+}
+
+function applyVol() {
+  if (ytOk && yt.setVolume) yt.setVolume(muted ? 0 : vol);
+}
+
+function seekTo(e) {
+  const r = document.getElementById('progbar').getBoundingClientRect();
+  const p = (e.clientX - r.left) / r.width;
+  if (ytOk && yt.getDuration) yt.seekTo(p * yt.getDuration(), true);
+}
+
+function shuffleAll() {
+  const q = [...SONGS].sort(() => Math.random() - 0.5);
+  play(0, q); toast('🔀 מנגן בסדר אקראי!');
+}
+
+function startProg() {
+  clearInterval(progIv);
+  progIv = setInterval(() => {
+    if (!ytOk || !yt.getDuration) return;
+    const cur = yt.getCurrentTime() || 0;
+    const dur = yt.getDuration() || 0;
+    if (!dur) return;
+    document.getElementById('progfill').style.width = (cur/dur*100) + '%';
+    document.getElementById('pt-cur').textContent = fmt(cur);
+    document.getElementById('pt-tot').textContent = fmt(dur);
+  }, 500);
+}
+
+function fmt(s) {
+  s = Math.floor(s);
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+
+/* ═══════════════════════════════
+   UI UPDATES
+═══════════════════════════════ */
+function updNP(s) {
+  document.getElementById('np-name').textContent = s.name;
+  document.getElementById('np-artist').textContent = s.artist;
+  const img = document.getElementById('np-img');
+  const em = document.getElementById('np-em');
+  img.onload = () => { img.style.display='block'; em.style.display='none'; };
+  img.onerror = () => { img.style.display='none'; em.style.display='block'; };
+  img.src = `https://i.ytimg.com/vi/${s.yt}/mqdefault.jpg`;
+  updHeart(s.id);
+  document.title = `${s.name} – ${s.artist} | Rani Music`;
+}
+
+function updPlay() {
+  document.getElementById('btn-play').textContent = playing ? '⏸' : '▶';
+}
+
+function showEq(on) {
+  document.getElementById('np-eq').classList.toggle('show', on);
+  document.getElementById('eq-main').classList.toggle('paused', !on);
+}
+
+function hiSong(id) {
+  document.querySelectorAll('.srow').forEach(r => r.classList.toggle('on', +r.dataset.id === id));
+}
+
+function updHeart(id) {
+  const btn = document.getElementById('np-heart');
+  const on = liked.includes(id);
+  btn.classList.toggle('on', on);
+  btn.textContent = on ? '♥' : '♡';
+}
+
+function loveCurrent() {
+  const s = queue[idx]; if (!s) return;
+  toggleLove(s.id, document.getElementById('np-heart'));
+}
+
+function toggleLove(id, btn) {
+  const i = liked.indexOf(id);
+  if (i > -1) { liked.splice(i, 1); }
+  else { liked.push(id); }
+  localStorage.setItem('rm-liked', JSON.stringify(liked));
+  if (btn) { btn.classList.toggle('on', liked.includes(id)); btn.textContent = liked.includes(id)?'♥':'♡'; }
+  updHeart(queue[idx]?.id);
+  if (curView === 'liked') renderLiked();
+}
+
+/* ═══════════════════════════════
+   NAV
+═══════════════════════════════ */
+function nav(view, plId) {
+  curView = view;
+  document.getElementById('srch').value = '';
+  const c = document.getElementById('content');
+  if (view === 'home')   renderHome(c);
+  else if (view === 'search') renderSearch(c);
+  else if (view === 'liked')  renderLiked(c);
+  else if (view === 'pl')     renderPl(c, plId);
+  // update sidebar active
+  ['home','search','liked'].forEach(v => {
+    const el = document.getElementById('si-' + v);
+    if (el) el.classList.toggle('on', v === view);
+  });
+  document.querySelectorAll('.pli').forEach(el =>
+    el.classList.toggle('on', el.dataset.pl === plId));
+}
+
+function siOn(el) {
+  document.querySelectorAll('.si').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+}
+
+/* ═══════════════════════════════
+   RENDER HOME
+═══════════════════════════════ */
+function renderHome(c) {
+  c = c || document.getElementById('content');
+  const cards = PL.map(pl => {
+    const cnt = SONGS.filter(s => s.pl === pl.id).length;
+    return `<div class="card" onclick="nav('pl','${pl.id}')">
+      <div class="card-img ${pl.g}">
+        <span>${pl.emoji}</span>
+        <button class="card-play" onclick="event.stopPropagation();playPl('${pl.id}')">▶</button>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${pl.name}</div>
+        <div class="card-sub">${pl.desc} · ${cnt} שירים</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  c.innerHTML = `
+    <div class="greet"><h1>🎵 מה שומעים היום?</h1><p>בחר פלייליסט או שיר ותתחיל</p></div>
+    <div class="sec">
+      <div class="shead"><div class="stit">📁 פלייליסטים</div></div>
+      <div class="cgrid">${cards}</div>
+    </div>
+    <div class="sec">
+      <div class="shead">
+        <div class="stit">🔥 להיטים חמים</div>
+        <div class="smore" onclick="shuffleAll()">הפעל הכל</div>
+      </div>
+      ${renderRows(SONGS.slice(0,12), SONGS)}
+    </div>`;
+}
+
+/* ═══════════════════════════════
+   RENDER PLAYLIST
+═══════════════════════════════ */
+function renderPl(c, plId) {
+  c = c || document.getElementById('content');
+  const pl = PL.find(p => p.id === plId);
+  if (!pl) return;
+  const songs = SONGS.filter(s => s.pl === plId);
+  c.innerHTML = `
+    <div class="pl-hero">
+      <div class="pl-hero-img ${pl.g}">${pl.emoji}</div>
+      <div class="pl-hero-info">
+        <div class="pl-hero-tag">פלייליסט</div>
+        <div class="pl-hero-title">${pl.name}</div>
+        <div class="pl-hero-desc">${pl.desc}</div>
+        <div class="pl-hero-btns">
+          <button class="pl-btn-play" onclick="playPl('${pl.id}')">▶ הפעל</button>
+          <button class="pl-btn-shuf" onclick="shufflePl('${pl.id}')">🔀 ערבב</button>
+          <span class="pl-ct">${songs.length} שירים</span>
+        </div>
+      </div>
+    </div>
+    ${renderRows(songs, songs)}`;
+}
+
+/* ═══════════════════════════════
+   RENDER LIKED
+═══════════════════════════════ */
+function renderLiked(c) {
+  c = c || document.getElementById('content');
+  const songs = SONGS.filter(s => liked.includes(s.id));
+  c.innerHTML = `
+    <div class="pl-hero" style="padding-bottom:20px;margin-bottom:20px;">
+      <div class="pl-hero-img g4" style="font-size:4rem;">❤️</div>
+      <div class="pl-hero-info">
+        <div class="pl-hero-tag">הספרייה שלי</div>
+        <div class="pl-hero-title">שירים שאהבתי</div>
+        <div class="pl-hero-desc">${songs.length} שירים</div>
+        ${songs.length > 0 ? `<div class="pl-hero-btns">
+          <button class="pl-btn-play" onclick="playLiked()">▶ הפעל</button>
+        </div>` : ''}
+      </div>
+    </div>
+    ${songs.length === 0
+      ? `<div class="empty"><span>♡</span>לחץ ♡ על שיר כדי להוסיף לפה</div>`
+      : renderRows(songs, songs)}`;
+}
+
+/* ═══════════════════════════════
+   RENDER SEARCH
+═══════════════════════════════ */
+function renderSearch(c) {
+  c = c || document.getElementById('content');
+  c.innerHTML = `
+    <div class="greet"><h1>🔍 חיפוש</h1><p>חפש שיר או אמן</p></div>
+    <div class="slist" id="sresults">${rawRows(SONGS, SONGS)}</div>`;
+}
+
+function doSearch(v) {
+  if (curView !== 'search') { nav('search'); siOn(document.getElementById('si-search')); }
+  v = v.toLowerCase().trim();
+  document.querySelectorAll('#sresults .srow').forEach(r => {
+    const match = !v || r.dataset.name.includes(v) || r.dataset.artist.includes(v);
+    r.classList.toggle('hidden', !match);
+  });
+}
+
+/* ═══════════════════════════════
+   ROW RENDERING
+═══════════════════════════════ */
+function renderRows(songs, q) {
+  return `<div class="slist">${rawRows(songs, q)}</div>`;
+}
+
+function rawRows(songs, q) {
+  return songs.map((s, i) => {
+    const isLiked = liked.includes(s.id);
+    const isFailed = failed.has(s.yt);
+    return `<div class="srow${isFailed?' failed':''}"
+      data-id="${s.id}"
+      data-name="${s.name.toLowerCase()}"
+      data-artist="${s.artist.toLowerCase()}"
+      ondblclick="playSong(${s.id})">
+      <div class="snum">
+        <span class="nn">${i+1}</span>
+        <span class="np" onclick="playSong(${s.id})">▶</span>
+      </div>
+      <div class="sthumb">
+        <img src="https://i.ytimg.com/vi/${s.yt}/mqdefault.jpg" loading="lazy"
+             onerror="this.style.display='none'">
+        <div class="sthumb-eq">
+          <div class="eqb"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="sinfo">
+        <div class="sname">${s.name}</div>
+        <div class="sartist">${s.artist}</div>
+      </div>
+      <button class="slove${isLiked?' on':''}"
+        onclick="event.stopPropagation();toggleLove(${s.id},this)">
+        ${isLiked?'♥':'♡'}
+      </button>
+      <div class="sdur">${s.dur}</div>
+    </div>`;
+  }).join('');
+}
+
+function playSong(id) {
+  const s = SONGS.find(x => x.id === id);
+  if (!s) return;
+  const plSongs = SONGS.filter(x => x.pl === s.pl);
+  const i = plSongs.findIndex(x => x.id === id);
+  play(i, plSongs);
+}
+
+function playPl(plId) {
+  const songs = SONGS.filter(s => s.pl === plId);
+  if (songs.length) play(0, songs);
+}
+
+function shufflePl(plId) {
+  const songs = [...SONGS.filter(s => s.pl === plId)].sort(() => Math.random()-0.5);
+  if (songs.length) play(0, songs);
+}
+
+function playLiked() {
+  const songs = SONGS.filter(s => liked.includes(s.id));
+  if (songs.length) play(0, songs);
+}
+
+/* ═══════════════════════════════
+   SIDEBAR PLAYLISTS
+═══════════════════════════════ */
+function buildSidebar() {
+  document.getElementById('pllist').innerHTML = PL.map(pl =>
+    `<div class="pli" data-pl="${pl.id}" onclick="nav('pl','${pl.id}');siUnAll()">
+      <div class="plem ${pl.g}">${pl.emoji}</div>
+      <div>
+        <div class="plname">${pl.name}</div>
+        <div class="plct">${SONGS.filter(s=>s.pl===pl.id).length} שירים</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function siUnAll() {
+  document.querySelectorAll('.si').forEach(e => e.classList.remove('on'));
+}
+
+/* ═══════════════════════════════
+   TOAST
+═══════════════════════════════ */
+let toastTmo;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTmo);
+  toastTmo = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ═══════════════════════════════
+   INIT
+═══════════════════════════════ */
+buildSidebar();
+nav('home');
+
+const s = document.createElement('script');
+s.src = 'https://www.youtube.com/iframe_api';
+document.head.appendChild(s);
+</script>
+</body>
+</html>
